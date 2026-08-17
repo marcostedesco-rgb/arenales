@@ -1,0 +1,292 @@
+{
+  "name": "Arenales — Informe de rotación mensual",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtDayOfMonth": 1,
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "trigger-dia-1",
+      "name": "Día 1 de cada mes, 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $vars.ARENALES_DIR || '/Users/marcostedesco/arenales' }} && python3 analisis.py data/stock.csv data/ventas.csv | tee output/analisis.json"
+      },
+      "id": "motor-analisis",
+      "name": "Analizar stock vs ventas",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        300
+      ],
+      "notes": "Aritmética pura, sin IA. Devuelve el JSON de segmentos por stdout."
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $vars.ARENALES_DIR || '/Users/marcostedesco/arenales' }} && python3 listas.py"
+      },
+      "id": "generar-listas",
+      "name": "Generar listas",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -130,
+        460
+      ],
+      "notes": "Lee output/analisis.json (recién escrito por el nodo anterior) y arma los CSV en output/listas/."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recorta el análisis a lo que la IA necesita ver y arma el prompt.\nconst salida = $('Analizar stock vs ventas').first().json;\n\nif (salida.exitCode !== 0) {\n  throw new Error('El análisis falló: ' + (salida.stderr || 'sin detalle'));\n}\n\nconst datos = JSON.parse(salida.stdout);\nconst TOPE = 25;\n\nconst limpiar = (filas = []) => filas.slice(0, TOPE).map(f => ({\n  titulo: f.titulo || `[sin título] ${f.ean}`,\n  stock: f.unidades_stock,\n  eur: f.valor_eur,\n  vendidas: f.vendidas_periodo,\n  facturado: f.facturado_periodo,\n  cobertura_meses: f.cobertura_meses,\n}));\n\nconst compacto = {\n  panorama: datos.panorama,\n  segmentos: datos.segmentos,\n  liquidar: limpiar(datos.liquidar),\n  devolver: limpiar(datos.devolver),\n  reponer: limpiar(datos.reponer),\n  destacar: limpiar(datos.destacar),\n  vigilar: limpiar(datos.vigilar),\n};\n\nconst instrucciones = `Te paso el análisis de rotación de este mes. Los números ya están calculados y son correctos: no los recalcules ni los pongas en duda, usalos tal cual.\n\nTu tarea es escribir el informe mensual con esta estructura exacta:\n\n## Lo que hay que hacer este mes\nTres acciones concretas, numeradas, en orden de impacto sobre la caja. Cada una con el título de los libros involucrados y el euro que mueve. Nada de \"considerar\" ni \"evaluar\": verbos de ejecución.\n\n## Devolver y liquidar\nQué sacar de la estantería y por qué. Distinguí entre lo que conviene devolver al distribuidor y lo que conviene liquidar con descuento en tienda. Si ves un patrón temático o de sello en el stock muerto, decilo: eso corrige la política de compras hacia adelante.\n\n## Reponer con urgencia\nTítulos que venden y están agotados o casi. Cada día sin ellos es venta perdida. Ordenalos por lo que facturaron.\n\n## Para el mostrador\nCinco títulos que tengan stock y rotación, para poner a la vista este mes. Una línea por título explicando por qué ese.\n\n## Lo que aprendimos\nDos o tres observaciones sobre qué tipo de libro funciona y cuál no en esta librería. Esto alimenta las compras del mes que viene.\n\nReglas:\n- Si un dato no está en el análisis, no lo inventes. Decí que falta.\n- Nada de tablas de más de cuatro columnas.\n- El informe entero, por debajo de 700 palabras.`;\n\nconst periodo = (datos.panorama.periodo_desde && datos.panorama.periodo_hasta)\n  ? `Los datos de ventas van del ${datos.panorama.periodo_desde} al ${datos.panorama.periodo_hasta}.\\n\\n`\n  : '';\n\nreturn [{\n  json: {\n    panorama: datos.panorama,\n    segmentos: datos.segmentos,\n    prompt: instrucciones + '\\n\\n<analisis>\\n' + periodo + JSON.stringify(compacto, null, 1) + '\\n</analisis>',\n  }\n}];",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "armar-prompt",
+      "name": "Armar el prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'claude-sonnet-4-6',\n  max_tokens: 2000,\n  system: 'Sos el analista de compras de Librería Arenales, una librería independiente de Chamberí (Madrid) especializada en literatura hispanoamericana. Tiene 5 estrellas en Google, club de lectura propio y cuentacuentos los sábados.\\n\\nLa situación es crítica y la conocés: la librería factura mucho menos de lo que cuesta sostenerla y los socios vienen inyectando capital todos los meses para cubrir el hueco. El capital está atrapado en las estanterías. Tu trabajo es liberarlo sin romper la identidad de la librería.\\n\\nEscribís para los socios y para quien atiende el mostrador. Hablás en castellano de España, directo, sin jerga de consultoría y sin adornos. Cada recomendación tuya tiene que poder ejecutarse este mes.',\n  messages: [{ role: 'user', content: $json.prompt }]\n}) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "claude",
+      "name": "Claude redacta el informe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        300
+      ],
+      "notes": "La IA decide y explica. No calcula: los números vienen dados."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Arma el markdown final con encabezado de contexto + informe de Claude,\n// y arma también la versión HTML del mail (tablas, estilos en línea, sin imágenes).\nconst texto = $json.content[0].text;\nconst p = $('Armar el prompt').first().json.panorama;\nconst segmentos = $('Armar el prompt').first().json.segmentos || {};\nconst resumenListas = {\n  liquidar: (segmentos.LIQUIDAR || {}).titulos || 0,\n  devolver: (segmentos.DEVOLVER || {}).titulos || 0,\n};\n\nconst hoy = new Date().toLocaleDateString('es-ES', {\n  day: 'numeric', month: 'long', year: 'numeric'\n});\nconst eur = n => Number(n).toLocaleString('es-ES', { maximumFractionDigits: 0 });\n\nconst cabecera = `# Informe de rotación — Librería Arenales\n**${hoy}**\n\n> €${eur(p.valor_stock_eur)} en estanterías · €${eur(p.capital_inmovilizado_eur)} sin vender en ${p.meses_analizados} meses · rotación ${p.rotacion_meses} meses (objetivo: ${p.rotacion_objetivo})\n> **Caja recuperable estimada: €${eur(p.caja_recuperable_estimada_eur)}**\n\n---\n\n`;\n\nconst archivo = `informe_${new Date().toISOString().slice(0, 10)}.md`;\n\n// --- versión HTML para el mail ---\n\nconst EMOJIS = {\n  'Lo que hay que hacer este mes': '🎯',\n  'Devolver y liquidar': '📦',\n  'Reponer con urgencia': '⚠️',\n  'Para el mostrador': '⭐',\n  'Lo que aprendimos': '💡',\n};\n\nconst inline = s => s\n  .replace(/\\*\\*(.+?)\\*\\*/g, '<strong style=\"color:#004226;\">$1</strong>')\n  .replace(/\\*(.+?)\\*/g, '<em>$1</em>');\n\nfunction notaListas(r) {\n  return `<tr><td style=\"padding-bottom:12px;\"><p style=\"margin:0;line-height:1.6;color:#6B6B6B;\"><em>Las listas completas van adjuntas: ${r.liquidar} títulos para liquidar y ${r.devolver} para devolver, con EAN y precio, listas para imprimir.</em></p></td></tr>`;\n}\n\nfunction mdToHtml(md, resumenListas) {\n  const bloques = [];\n  let actual = [];\n  for (const linea of md.split('\\n')) {\n    if (linea.trim() === '') {\n      if (actual.length) { bloques.push(actual); actual = []; }\n    } else {\n      actual.push(linea);\n    }\n  }\n  if (actual.length) bloques.push(actual);\n\n  let html = '';\n  let seccion = '';\n\n  for (const bloque of bloques) {\n    const primera = bloque[0].trim();\n\n    if (primera === '---') continue;\n\n    if (primera.startsWith('## ')) {\n      if (seccion === 'Devolver y liquidar') html += notaListas(resumenListas);\n      seccion = primera.slice(3).trim();\n      const emoji = EMOJIS[seccion] || '📄';\n      html += `<tr><td style=\"padding:16px 0 8px 0;\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n          <tr><td style=\"background:#004226;color:#ffffff;font-size:16px;font-weight:bold;padding:12px 16px;border-radius:8px;\">${emoji} ${seccion}</td></tr>\n        </table>\n      </td></tr>`;\n      continue;\n    }\n\n    if (bloque.every(l => l.trim().startsWith('|'))) {\n      const filas = bloque\n        .map(l => l.trim().replace(/^\\|/, '').replace(/\\|$/, '').split('|').map(c => c.trim()));\n      const encabezado = filas[0];\n      const cuerpo = filas.slice(2); // se salta la fila separadora ---|---\n      let tabla = '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse;font-size:13px;\">';\n      tabla += '<tr>' + encabezado.map(c => `<th style=\"background:#004226;color:#ffffff;text-align:left;padding:8px;border:1px solid #E8E6E2;\">${inline(c)}</th>`).join('') + '</tr>';\n      cuerpo.forEach((fila, i) => {\n        const fondo = i % 2 === 0 ? '#ffffff' : '#F4F2EE';\n        tabla += '<tr>' + fila.map(c => `<td style=\"background:${fondo};padding:8px;border:1px solid #E8E6E2;color:#2A2A2A;\">${inline(c)}</td>`).join('') + '</tr>';\n      });\n      tabla += '</table>';\n      html += `<tr><td style=\"padding-bottom:12px;\">${tabla}</td></tr>`;\n      continue;\n    }\n\n    if (/^\\*\\*\\d+\\./.test(primera) && seccion.toLowerCase().includes('hacer este mes')) {\n      const titulo = inline(bloque[0]);\n      const resto = inline(bloque.slice(1).join(' '));\n      html += `<tr><td style=\"padding-bottom:12px;\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#FBFAF8;border-left:3px solid #004226;\">\n          <tr><td style=\"padding:12px 16px;\">\n            <p style=\"margin:0 0 6px 0;line-height:1.6;color:#2A2A2A;\">${titulo}</p>\n            <p style=\"margin:0;line-height:1.6;color:#2A2A2A;\">${resto}</p>\n          </td></tr>\n        </table>\n      </td></tr>`;\n      continue;\n    }\n\n    if (bloque.every(l => /^\\d+\\.\\s/.test(l.trim()))) {\n      const items = bloque.map(l => `<li style=\"margin-bottom:8px;line-height:1.6;color:#2A2A2A;\">${inline(l.trim().replace(/^\\d+\\.\\s/, ''))}</li>`).join('');\n      html += `<tr><td style=\"padding-bottom:12px;\"><ol style=\"margin:0;padding-left:20px;\">${items}</ol></td></tr>`;\n      continue;\n    }\n\n    if (bloque.every(l => /^[-*]\\s/.test(l.trim()))) {\n      const items = bloque.map(l => `<li style=\"margin-bottom:8px;line-height:1.6;color:#2A2A2A;\">${inline(l.trim().replace(/^[-*]\\s/, ''))}</li>`).join('');\n      html += `<tr><td style=\"padding-bottom:12px;\"><ul style=\"margin:0;padding-left:20px;\">${items}</ul></td></tr>`;\n      continue;\n    }\n\n    const parrafo = inline(bloque.join(' '));\n    html += `<tr><td style=\"padding-bottom:12px;\"><p style=\"margin:0;line-height:1.6;color:#2A2A2A;\">${parrafo}</p></td></tr>`;\n  }\n\n  if (seccion === 'Devolver y liquidar') html += notaListas(resumenListas);\n\n  return html;\n}\n\nconst mesCap = (m => m.charAt(0).toUpperCase() + m.slice(1))(\n  new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })\n);\n\nconst cuerpoHtml = mdToHtml(texto, resumenListas);\n\nconst html = `<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#FBFAF8;padding:24px 0;\">\n<tr><td align=\"center\">\n<table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:600px;max-width:100%;background:#ffffff;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">\n  <tr><td style=\"background:#004226;padding:28px 24px;text-align:center;\">\n    <div style=\"color:#ffffff;font-size:20px;font-weight:bold;\">Librería Arenales</div>\n    <div style=\"color:#ffffff;font-size:15px;margin-top:4px;\">Informe de rotación · ${mesCap}</div>\n    <div style=\"color:#8FB3A0;font-size:12px;margin-top:8px;\">Ventas del ${p.periodo_desde} al ${p.periodo_hasta}</div>\n  </td></tr>\n  <tr><td style=\"padding:20px 16px 4px 16px;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      <tr>\n        <td width=\"50%\" style=\"padding:6px;\">\n          <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#E3EEE8;border-radius:8px;\">\n            <tr><td style=\"padding:16px;text-align:center;\">\n              <div style=\"font-size:26px;font-weight:bold;color:#004226;\">€${eur(p.valor_stock_eur)}</div>\n              <div style=\"font-size:11px;color:#6B6B6B;margin-top:4px;\">en estanterías</div>\n            </td></tr>\n          </table>\n        </td>\n        <td width=\"50%\" style=\"padding:6px;\">\n          <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#F8E9E8;border-radius:8px;\">\n            <tr><td style=\"padding:16px;text-align:center;\">\n              <div style=\"font-size:26px;font-weight:bold;color:#004226;\">${p.pct_titulos_sin_venta}%</div>\n              <div style=\"font-size:11px;color:#6B6B6B;margin-top:4px;\">sin vender en ${p.meses_analizados} meses</div>\n            </td></tr>\n          </table>\n        </td>\n      </tr>\n      <tr>\n        <td width=\"50%\" style=\"padding:6px;\">\n          <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#F8E9E8;border-radius:8px;\">\n            <tr><td style=\"padding:16px;text-align:center;\">\n              <div style=\"font-size:26px;font-weight:bold;color:#004226;\">${p.rotacion_meses}</div>\n              <div style=\"font-size:11px;color:#6B6B6B;margin-top:4px;\">meses de rotación · objetivo ${p.rotacion_objetivo}</div>\n            </td></tr>\n          </table>\n        </td>\n        <td width=\"50%\" style=\"padding:6px;\">\n          <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#E3EEE8;border-radius:8px;\">\n            <tr><td style=\"padding:16px;text-align:center;\">\n              <div style=\"font-size:26px;font-weight:bold;color:#004226;\">€${eur(p.caja_recuperable_estimada_eur)}</div>\n              <div style=\"font-size:11px;color:#6B6B6B;margin-top:4px;\">caja recuperable estimada</div>\n            </td></tr>\n          </table>\n        </td>\n      </tr>\n    </table>\n  </td></tr>\n  <tr><td style=\"padding:8px 16px 8px 16px;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      ${cuerpoHtml}\n    </table>\n  </td></tr>\n  <tr><td style=\"background:#FBFAF8;color:#6B6B6B;font-size:11px;text-align:center;padding:16px;\">\n    Generado automáticamente el ${hoy}. Próximo informe: el día 1 del mes que viene.\n  </td></tr>\n</table>\n</td></tr>\n</table>`;\n\nreturn [{\n  json: { archivo, panorama: p, informe: cabecera + texto, html },\n  binary: {\n    data: {\n      data: Buffer.from(cabecera + texto, 'utf8').toString('base64'),\n      mimeType: 'text/markdown',\n      fileName: archivo,\n    }\n  }\n}];",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "componer",
+      "name": "Componer el informe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ ($vars.ARENALES_DIR || '/Users/marcostedesco/arenales') + '/output/' + $json.archivo }}",
+        "dataPropertyName": "data",
+        "options": {}
+      },
+      "id": "guardar",
+      "name": "Guardar el informe",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $vars.ARENALES_DIR || '/Users/marcostedesco/arenales' }} && python3 codificar_adjuntos.py"
+      },
+      "id": "codificar-adjuntos",
+      "name": "Codificar adjuntos",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        860,
+        460
+      ],
+      "notes": "Lee los CSV de output/listas/ y los imprime en base64 por stdout, uno por segmento."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const salida = $input.first().json;\n\nif (salida.exitCode !== 0) {\n  throw new Error('No se pudieron codificar los adjuntos: ' + (salida.stderr || 'sin detalle'));\n}\n\nconst datos = JSON.parse(salida.stdout);\nconst binary = {};\nfor (const [clave, b64] of Object.entries(datos)) {\n  binary[clave] = { data: b64, mimeType: 'text/csv', fileName: `${clave}.csv` };\n}\n\nreturn [{ json: {}, binary }];"
+      },
+      "id": "armar-adjuntos",
+      "name": "Armar adjuntos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "CAMBIAME@gmail.com",
+        "toEmail": "CAMBIAME@gmail.com",
+        "subject": "={{ 'Librería Arenales · Informe de rotación · ' + new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) }}",
+        "text": "={{ $('Componer el informe').item.json.informe }}",
+        "options": {
+          "attachments": "liquidar,devolver,reponer,destacar"
+        },
+        "emailFormat": "html",
+        "html": "={{ $('Componer el informe').item.json.html }}"
+      },
+      "id": "enviar-mail",
+      "name": "Enviar por mail",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        300
+      ],
+      "notes": "Completar credenciales SMTP y fromEmail/toEmail en la UI de n8n."
+    }
+  ],
+  "connections": {
+    "Día 1 de cada mes, 08:00": {
+      "main": [
+        [
+          {
+            "node": "Analizar stock vs ventas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar stock vs ventas": {
+      "main": [
+        [
+          {
+            "node": "Generar listas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar listas": {
+      "main": [
+        [
+          {
+            "node": "Armar el prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar el prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude redacta el informe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude redacta el informe": {
+      "main": [
+        [
+          {
+            "node": "Componer el informe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Componer el informe": {
+      "main": [
+        [
+          {
+            "node": "Guardar el informe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar el informe": {
+      "main": [
+        [
+          {
+            "node": "Codificar adjuntos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Codificar adjuntos": {
+      "main": [
+        [
+          {
+            "node": "Armar adjuntos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar adjuntos": {
+      "main": [
+        [
+          {
+            "node": "Enviar por mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

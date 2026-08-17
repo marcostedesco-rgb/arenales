@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep *)",
+      "Bash(python3 *)",
+      "Bash(node run_test.js)",
+      "Bash(node -e ' *)",
+      "Bash(node run_test2.js)",
+      "Bash(node run_test3.js)",
+      "Bash(node run_test4.js)",
+      "Bash(cp output/analisis.json /tmp/analisis_antes.json)",
+      "Bash(python3 analisis.py data/stock.csv data/ventas.csv)",
+      "Bash(node --check /Users/marcostedesco/arenales/web/api/chat.js)",
+      "Bash(node *)",
+      "Bash(sips -g pixelWidth -g pixelHeight -g hasAlpha logo.png frente.png)",
+      "Bash(sips -s format jpeg -s formatOptions 78 frente.png --resampleWidth 900 --out web/frente.jpg)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/preview_desktop.png --window-size=430,900 http://localhost:8123/index.html)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/preview_fixed.png --window-size=390,844 http://localhost:8123/index.html)",
+      "Bash(npm ls *)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/debug.png --window-size=390,844 --virtual-time-budget=2000 http://localhost:8123/_debug.html)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --force-device-scale-factor=1 --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/debug2.png --window-size=390,844 http://localhost:8123/_debug.html)",
+      "Bash(sips *)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --force-device-scale-factor=1 --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/preview_500.png --window-size=500,1000 http://localhost:8123/index.html)",
+      "Bash(pkill -f \"http.server 8123\")",
+      "Bash(rm -f /private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/*.png)",
+      "Bash(curl -s http://localhost:8123/logo.png -o /dev/null -w \"logo.png: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:8123/frente.jpg -o /dev/null -w \"frente.jpg: %{http_code}\\\\n\")",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --force-device-scale-factor=1 --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/rediseno.png --window-size=500,1000 http://localhost:8123/index.html)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --force-device-scale-factor=1 --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/cortina_check2.png --window-size=500,900 http://localhost:8123/index.html)",
+      "Bash(curl *)",
+      "WebFetch(domain:maps.app.goo.gl)",
+      "WebFetch(domain:www.google.com)",
+      "WebSearch",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --force-device-scale-factor=1 --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/portada.png --window-size=500,1600 http://localhost:8123/index.html)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --force-device-scale-factor=1 --screenshot=/private/tmp/claude-501/-Users-marcostedesco-arenales/94ae5f43-d262-469f-a906-1869f8a85f66/scratchpad/chat_check.png --window-size=500,900 http://localhost:8123/chat.html)",
+      "Bash(echo \"exit: $?\")"
+    ]
+  }
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Librería Arenales — El librero</title>
+<style>
+  :root {
+    --verde: #004226;
+    --verde-claro: #0A5534;
+    --fondo: #F5F8F5;
+    --tarjeta-ok: #E3EEE8;
+    --acento: #E2D4CB;
+    --texto: #2A2A2A;
+    --texto-sec: #6B6B6B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* los hijos directos de un flex column no se achican por debajo de su
+     contenido si no se lo decimos explícitamente: sin esto, algo con texto
+     largo puede empujar todo el body más ancho que la pantalla. */
+  header, main {
+    min-width: 0;
+  }
+  header {
+    position: relative;
+    padding: 28px 16px 20px;
+    text-align: center;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(0,66,38,.72), rgba(0,66,38,.88)),
+      url(/frente.jpg) center 30% / cover no-repeat;
+    border-bottom: 4px solid var(--verde-claro);
+  }
+  header .logo-badge {
+    display: inline-block;
+    background: #fff;
+    padding: 10px 18px;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  header .logo {
+    display: block;
+    width: 170px;
+    max-width: 100%;
+    height: auto;
+  }
+  header p {
+    margin: 14px auto 0;
+    font-size: 13px;
+    color: #DCEAE2;
+    max-width: 440px;
+    line-height: 1.5;
+  }
+  .enlaces {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .enlaces a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 20px;
+  }
+  .enlaces a.whatsapp { background: #fff; color: var(--verde); }
+  .enlaces a.whatsapp:hover { background: #EDEAE4; }
+  .enlaces a.maps { background: var(--acento); color: var(--verde); }
+  .enlaces a.maps:hover { background: #d8c5b8; }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: 96px;
+  }
+  #mensajes {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .burbuja {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.5;
+    font-size: 15px;
+    white-space: pre-wrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .burbuja.usuario {
+    align-self: flex-end;
+    background: var(--verde);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .burbuja.librero {
+    align-self: flex-start;
+    background: var(--tarjeta-ok);
+    color: var(--texto);
+    border-bottom-left-radius: 4px;
+    border-left: 3px solid var(--verde-claro);
+  }
+  .burbuja.error {
+    align-self: flex-start;
+    background: #F8E9E8;
+    color: var(--texto);
+  }
+  .burbuja.pensando { color: var(--texto-sec); font-style: italic; }
+
+  form {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--fondo);
+    border-top: 2px solid var(--verde);
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  form input {
+    flex: 1;
+    border: 1px solid var(--acento);
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 15px;
+    font-family: inherit;
+  }
+  form input:focus { outline: 2px solid var(--verde-claro); }
+  form button {
+    background: var(--verde);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 0 20px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  form button:disabled { opacity: 0.5; cursor: default; }
+
+  @media (max-width: 420px) {
+    .burbuja { max-width: 90%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">
+    <img class="logo" src="/logo.png" alt="Librería Arenales">
+  </div>
+  <p>Barrio de Chamberí, Madrid. Literatura hispanoamericana, club de lectura
+     y cuentacuentos los sábados. Preguntale al librero qué leer.</p>
+  <div class="enlaces">
+    <a class="whatsapp" href="https://wa.me/34679785293" target="_blank" rel="noopener">💬 Pedir por WhatsApp</a>
+    <a class="maps" href="https://maps.app.goo.gl/s3nLBwanzGgBywgb7" target="_blank" rel="noopener">📍 Cómo llegar</a>
+  </div>
+</header>
+
+<main>
+  <div id="mensajes"></div>
+</main>
+
+<form id="form-chat">
+  <input type="text" id="campo-mensaje" placeholder="Escribí acá..." maxlength="500" autocomplete="off">
+  <button type="submit" id="boton-enviar">Enviar</button>
+</form>
+
+<script>
+  const listaMensajes = document.getElementById('mensajes');
+  const form = document.getElementById('form-chat');
+  const campo = document.getElementById('campo-mensaje');
+  const boton = document.getElementById('boton-enviar');
+
+  let historial = []; // { usuario, librero }
+
+  function agregarBurbuja(texto, clase) {
+    const div = document.createElement('div');
+    div.className = 'burbuja ' + clase;
+    div.textContent = texto;
+    listaMensajes.appendChild(div);
+    window.scrollTo(0, document.body.scrollHeight);
+    return div;
+  }
+
+  async function enviar(mensaje) {
+    if (!mensaje.trim()) return;
+
+    agregarBurbuja(mensaje, 'usuario');
+    campo.value = '';
+    boton.disabled = true;
+    const pensando = agregarBurbuja('Pensando...', 'librero pensando');
+
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje, historial }),
+      });
+
+      pensando.remove();
+
+      if (!resp.ok) {
+        agregarBurbuja('No pude responder ahora. Probá de nuevo en un rato.', 'error');
+        return;
+      }
+
+      const datos = await resp.json();
+      agregarBurbuja(datos.respuesta, 'librero');
+
+      historial.push({ usuario: mensaje, librero: datos.respuesta });
+      if (historial.length > 10) historial.shift();
+    } catch (err) {
+      pensando.remove();
+      agregarBurbuja('No pude conectar. Revisá tu conexión e intentá de nuevo.', 'error');
+    } finally {
+      boton.disabled = false;
+      campo.focus();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    enviar(campo.value);
+  });
+</script>
+
+</body>
+</html>

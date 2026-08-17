@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Librería Arenales — Panel de rotación</title>
+<style>
+  :root {
+    --verde: #004226;
+    --verde-claro: #0A5534;
+    --fondo: #FBFAF8;
+    --tarjeta-ok: #E3EEE8;
+    --tarjeta-alerta: #F8E9E8;
+    --acento: #E2D4CB;
+    --texto: #2A2A2A;
+    --texto-sec: #6B6B6B;
+    --borde: #E8E6E2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+  }
+
+  /* --- login --- */
+  #login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #login form {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+  #login h1 { color: var(--verde); font-size: 18px; margin: 0 0 20px; }
+  #login input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--acento);
+    border-radius: 10px;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  #login button {
+    width: 100%;
+    padding: 12px;
+    background: var(--verde);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  #login p.error { color: #A5453F; font-size: 13px; min-height: 18px; margin: 8px 0 0; }
+
+  /* --- panel --- */
+  #panel { display: none; max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  header.encabezado {
+    background: var(--verde);
+    color: #fff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  header.encabezado h1 { margin: 0 0 4px; font-size: 20px; }
+  header.encabezado p { margin: 0; font-size: 13px; color: #B7D0C4; }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--tarjeta-ok);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .kpi.alerta { background: var(--tarjeta-alerta); }
+  .kpi .valor { font-size: 22px; font-weight: bold; color: var(--verde); }
+  .kpi .etiqueta { font-size: 11px; color: var(--texto-sec); margin-top: 4px; }
+
+  section { margin-bottom: 28px; }
+  section h2 {
+    font-size: 15px;
+    color: var(--verde);
+    border-bottom: 2px solid var(--acento);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+
+  .segmentos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  .segmento {
+    background: #fff;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .segmento .nombre { font-size: 12px; color: var(--texto-sec); }
+  .segmento .num { font-size: 16px; font-weight: bold; color: var(--verde); }
+
+  .tabla-wrap { overflow-x: auto; border: 1px solid var(--borde); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--borde); }
+  th { background: var(--verde); color: #fff; }
+  tr:nth-child(even) td { background: #F4F2EE; }
+
+  .boton-descarga {
+    margin-top: 10px;
+    background: var(--acento);
+    color: var(--verde);
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .boton-descarga:hover { background: #d8c5b8; }
+  .boton-descarga:disabled { opacity: 0.6; cursor: default; }
+
+  @media (max-width: 480px) {
+    .kpi .valor { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form id="form-login">
+    <h1>Librería Arenales<br>Panel de rotación</h1>
+    <input type="password" id="campo-clave" placeholder="Clave" autocomplete="current-password">
+    <button type="submit">Entrar</button>
+    <p class="error" id="error-login"></p>
+  </form>
+</div>
+
+<div id="panel">
+  <header class="encabezado">
+    <h1>Informe de rotación</h1>
+    <p id="periodo"></p>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Segmentos</h2>
+    <div class="segmentos" id="segmentos"></div>
+  </section>
+
+  <section>
+    <h2>⚠️ Reponer con urgencia</h2>
+    <div class="tabla-wrap"><table id="tabla-reponer"></table></div>
+    <button class="boton-descarga" data-lista="reponer">Descargar CSV completo</button>
+  </section>
+
+  <section>
+    <h2>📦 Liquidar</h2>
+    <div class="tabla-wrap"><table id="tabla-liquidar"></table></div>
+    <button class="boton-descarga" data-lista="liquidar">Descargar CSV completo</button>
+  </section>
+
+  <section>
+    <h2>📦 Devolver</h2>
+    <div class="tabla-wrap"><table id="tabla-devolver"></table></div>
+    <button class="boton-descarga" data-lista="devolver">Descargar CSV completo</button>
+  </section>
+
+  <section>
+    <h2>⭐ Destacar</h2>
+    <div class="tabla-wrap"><table id="tabla-destacar"></table></div>
+    <button class="boton-descarga" data-lista="destacar">Descargar CSV completo</button>
+  </section>
+</div>
+
+<script>
+  const CONFIG_LISTAS = {
+    liquidar: {
+      columnas: ['EAN', 'Título', 'Autor', 'Editorial', 'Ejemplares', 'PVP', 'Precio liquidación', 'Valor total', 'Hecho'],
+      fila: (f) => [f.ean, f.titulo, f.autor, f.editorial, f.unidades_stock, euroCsv(f.pvp), euroCsv(f.pvp_liquidacion), euroCsv(f.valor_eur), ''],
+      // comparación por código de carácter, no localeCompare: tiene que
+      // ordenar igual que el sorted() de Python que arma listas.py, para
+      // que el CSV del panel coincida con el que va adjunto en el mail.
+      ordenar: (filas) => [...filas].sort((a, b) => {
+        const ea = a.editorial || '', eb = b.editorial || '';
+        return ea < eb ? -1 : ea > eb ? 1 : b.valor_eur - a.valor_eur;
+      }),
+      tablaCols: ['Título', 'Editorial', 'Ejemplares', 'Precio liquidación'],
+      tablaFila: (f) => [f.titulo, f.editorial, f.unidades_stock, '€' + euroCsv(f.pvp_liquidacion)],
+    },
+    devolver: {
+      columnas: ['EAN', 'Título', 'Autor', 'Editorial', 'Ejemplares', 'PVP', 'Valor total', 'Hecho'],
+      fila: (f) => [f.ean, f.titulo, f.autor, f.editorial, f.unidades_stock, euroCsv(f.pvp), euroCsv(f.valor_eur), ''],
+      // comparación por código de carácter, no localeCompare: tiene que
+      // ordenar igual que el sorted() de Python que arma listas.py, para
+      // que el CSV del panel coincida con el que va adjunto en el mail.
+      ordenar: (filas) => [...filas].sort((a, b) => {
+        const ea = a.editorial || '', eb = b.editorial || '';
+        return ea < eb ? -1 : ea > eb ? 1 : b.valor_eur - a.valor_eur;
+      }),
+      tablaCols: ['Título', 'Editorial', 'Ejemplares', 'Valor total'],
+      tablaFila: (f) => [f.titulo, f.editorial, f.unidades_stock, '€' + euroCsv(f.valor_eur)],
+    },
+    reponer: {
+      columnas: ['EAN', 'Título', 'Autor', 'Editorial', 'Vendidos', 'Stock actual', 'Facturado', 'Pedir', 'Hecho'],
+      fila: (f) => [f.ean, f.titulo, f.autor, f.editorial, f.vendidas_periodo, f.unidades_stock, euroCsv(f.facturado_periodo), f.sugerido_pedir, ''],
+      ordenar: (filas) => filas,
+      tablaCols: ['Título', 'Vendidos', 'Stock actual', 'Facturado'],
+      tablaFila: (f) => [f.titulo, f.vendidas_periodo, f.unidades_stock, '€' + euroCsv(f.facturado_periodo)],
+    },
+    destacar: {
+      columnas: ['EAN', 'Título', 'Autor', 'Editorial', 'Vendidos', 'Stock actual', 'Facturado', 'Hecho'],
+      fila: (f) => [f.ean, f.titulo, f.autor, f.editorial, f.vendidas_periodo, f.unidades_stock, euroCsv(f.facturado_periodo), ''],
+      ordenar: (filas) => filas,
+      tablaCols: ['Título', 'Vendidos', 'Stock actual', 'Facturado'],
+      tablaFila: (f) => [f.titulo, f.vendidas_periodo, f.unidades_stock, '€' + euroCsv(f.facturado_periodo)],
+    },
+  };
+
+  function euroCsv(n) {
+    return Number(n ?? 0).toFixed(2).replace('.', ',');
+  }
+
+  function eanTexto(ean) {
+    return "'" + ean;
+  }
+
+  function csvEscape(valor) {
+    const s = String(valor ?? '');
+    if (/[";\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function armarCsv(segmento, filas) {
+    const cfg = CONFIG_LISTAS[segmento];
+    const ordenadas = cfg.ordenar(filas);
+    const lineas = [cfg.columnas.join(';')];
+    for (const f of ordenadas) {
+      const valores = cfg.fila(f);
+      valores[0] = eanTexto(valores[0]); // el EAN va como texto
+      lineas.push(valores.map(csvEscape).join(';'));
+    }
+    return '﻿' + lineas.join('\r\n');
+  }
+
+  function descargarCsv(nombreArchivo, contenido) {
+    const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function pedirPanel(clave, lista) {
+    const cuerpo = lista ? { clave, lista } : { clave };
+    const resp = await fetch('/api/panel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cuerpo),
+    });
+    if (!resp.ok) {
+      const err = new Error('panel-error');
+      err.status = resp.status;
+      throw err;
+    }
+    return resp.json();
+  }
+
+  function euro(n) {
+    return '€' + Number(n).toLocaleString('es-ES', { maximumFractionDigits: 0 });
+  }
+
+  function pintarKpis(p) {
+    const kpis = document.getElementById('kpis');
+    kpis.innerHTML = `
+      <div class="kpi"><div class="valor">${euro(p.valor_stock_eur)}</div><div class="etiqueta">en estanterías</div></div>
+      <div class="kpi alerta"><div class="valor">${p.pct_titulos_sin_venta}%</div><div class="etiqueta">sin vender en ${p.meses_analizados} meses</div></div>
+      <div class="kpi alerta"><div class="valor">${euro(p.capital_inmovilizado_eur)}</div><div class="etiqueta">capital inmovilizado</div></div>
+      <div class="kpi"><div class="valor">${p.rotacion_meses}</div><div class="etiqueta">meses de rotación · objetivo ${p.rotacion_objetivo}</div></div>
+      <div class="kpi"><div class="valor">${euro(p.caja_recuperable_estimada_eur)}</div><div class="etiqueta">caja recuperable estimada</div></div>
+    `;
+  }
+
+  function pintarSegmentos(segmentos) {
+    const cont = document.getElementById('segmentos');
+    cont.innerHTML = Object.entries(segmentos).map(([nombre, s]) => `
+      <div class="segmento">
+        <div class="nombre">${nombre}</div>
+        <div class="num">${s.titulos} títulos</div>
+        <div class="nombre">${s.unidades} ejemplares · ${euro(s.valor_eur)}</div>
+      </div>
+    `).join('');
+  }
+
+  function pintarTabla(segmento, filas) {
+    const cfg = CONFIG_LISTAS[segmento];
+    const tabla = document.getElementById('tabla-' + segmento);
+    const filasHtml = filas.map((f) => `<tr>${cfg.tablaFila(f).map((v) => `<td>${v}</td>`).join('')}</tr>`).join('');
+    tabla.innerHTML = `
+      <thead><tr>${cfg.tablaCols.map((c) => `<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${filasHtml}</tbody>
+    `;
+  }
+
+  function pintarPanel(datos) {
+    document.getElementById('periodo').textContent =
+      `Ventas del ${datos.panorama.periodo_desde} al ${datos.panorama.periodo_hasta} · generado ${datos.generado || ''}`;
+    pintarKpis(datos.panorama);
+    pintarSegmentos(datos.segmentos);
+    pintarTabla('reponer', datos.reponer);
+    pintarTabla('liquidar', datos.liquidar);
+    pintarTabla('devolver', datos.devolver);
+    pintarTabla('destacar', datos.destacar);
+
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+  }
+
+  async function intentarEntrar(clave, mostrarErrorSiFalla) {
+    try {
+      const datos = await pedirPanel(clave);
+      sessionStorage.setItem('arenales_clave', clave);
+      pintarPanel(datos);
+      return true;
+    } catch (err) {
+      sessionStorage.removeItem('arenales_clave');
+      if (mostrarErrorSiFalla) {
+        document.getElementById('error-login').textContent =
+          err.status === 429 ? 'Demasiados intentos. Probá en una hora.' : 'Clave incorrecta.';
+      }
+      return false;
+    }
+  }
+
+  document.getElementById('form-login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const clave = document.getElementById('campo-clave').value;
+    document.getElementById('error-login').textContent = '';
+    await intentarEntrar(clave, true);
+  });
+
+  document.getElementById('panel').addEventListener('click', async (e) => {
+    const boton = e.target.closest('.boton-descarga');
+    if (!boton) return;
+    const segmento = boton.dataset.lista;
+    const clave = sessionStorage.getItem('arenales_clave');
+    boton.disabled = true;
+    const textoOriginal = boton.textContent;
+    boton.textContent = 'Descargando...';
+    try {
+      const datos = await pedirPanel(clave, segmento);
+      const mes = new Date().toISOString().slice(0, 7);
+      descargarCsv(`${segmento}_${mes}.csv`, armarCsv(segmento, datos.lista));
+    } catch (err) {
+      alert('No se pudo descargar la lista.');
+    } finally {
+      boton.disabled = false;
+      boton.textContent = textoOriginal;
+    }
+  });
+
+  // auto-login si ya había clave guardada en esta pestaña
+  const claveGuardada = sessionStorage.getItem('arenales_clave');
+  if (claveGuardada) {
+    intentarEntrar(claveGuardada, false);
+  }
+</script>
+
+</body>
+</html>
