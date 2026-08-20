@@ -36,7 +36,7 @@ def _catalogo(ruta_stock, ruta_ventas):
     return catalogo
 
 
-def generar(ruta_stock="data/stock.csv", ruta_ventas="data/ventas.csv",
+def generar(ruta_stock="data/stock.xls", ruta_ventas="data/ventas.xls",
             ruta_analisis="output/analisis.json", carpeta_salida="web/api/_datos"):
     salida = Path(carpeta_salida)
     salida.mkdir(parents=True, exist_ok=True)

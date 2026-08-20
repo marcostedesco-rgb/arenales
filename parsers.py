@@ -1,7 +1,8 @@
 """
 Librería Arenales — Lectores de datos
 =====================================
-Convierten los exports de Geslib (PDF hoy, CSV mañana) a un formato común.
+Convierten los exports de Geslib (PDF, CSV o el XLS de "Valoración de
+centro" / "Ventas diarias" que Geslib genera directo) a un formato común.
 
 Formato común de STOCK:  {ean, titulo, unidades, valor_eur, pvp}
 Formato común de VENTAS: {fecha, ean, titulo, unidades, importe_eur}
@@ -10,6 +11,7 @@ Formato común de VENTAS: {fecha, ean, titulo, unidades, importe_eur}
 import re
 import csv
 import subprocess
+import unicodedata
 from pathlib import Path
 
 
@@ -24,6 +26,47 @@ def _num(s):
         return float(s)
     except ValueError:
         return 0.0
+
+
+def _plano(s):
+    """'Descripción' -> 'descripcion' — para comparar encabezados sin acentos."""
+    s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+    return s.strip().lower()
+
+
+def _celda(fila, indice):
+    return fila[indice] if 0 <= indice < len(fila) else ""
+
+
+def _es_ean(valor):
+    """Devuelve el EAN limpio de guiones, o None si no tiene pinta de EAN/ISBN."""
+    digitos = re.sub(r"\D", "", str(valor or ""))
+    return digitos if len(digitos) >= 12 else None
+
+
+def _fila_encabezado(fila, etiquetas_necesarias):
+    presentes = {_plano(v) for v in fila if v not in (None, "")}
+    return etiquetas_necesarias <= presentes
+
+
+def _mapa_encabezado(fila, etiquetas):
+    mapa = {}
+    for i, valor in enumerate(fila):
+        v = _plano(valor)
+        if v in etiquetas:
+            mapa[v] = i
+    return mapa
+
+
+def _hoja_xls(path):
+    """Primera hoja de un .xls/.xlsx como lista de filas.
+
+    Los exports de Geslib salen del "Reports" de un ERP viejo y no siempre
+    respetan el formato BIFF al pie de la letra (algunos traen un EXTERNSHEET
+    mal armado que hace que xlrd los rechace). calamine los lee igual.
+    """
+    from python_calamine import CalamineWorkbook
+    return CalamineWorkbook.from_path(str(path)).get_sheet_by_index(0).to_python()
 
 
 def _pdf_text(path, first=None, last=None):
@@ -270,9 +313,74 @@ def leer_stock_csv(path):
         return filas
 
 
+_ETIQUETAS_STOCK = {"articulo", "descripcion", "autor", "stock", "pvp"}
+
+
+def leer_stock_xls(path):
+    """
+    Lector del XLS "Inventario: Valoración de centro" que exporta Geslib
+    directo (sin pasar por Google Sheets ni PDF).
+
+    El reporte agrupa los títulos por "Familia" (= editorial), repitiendo el
+    encabezado de columnas en cada grupo y cerrando cada uno con una fila de
+    subtotal. Todas esas filas de encabezado, subtotal, "Página X de Y" y
+    "Total" traen la columna Artículo vacía, así que basta con quedarse con
+    las filas cuyo primer valor tiene forma de EAN — no hace falta llevar un
+    estado de "dónde estoy dentro del bloque".
+
+    Ojo con la columna PVP: acá no es el precio unitario, es el valor total
+    de ese título en stock (unidades × pvp) — igual que "Stock eur" en el PDF
+    viejo. El precio unitario sale de dividir por las unidades.
+    """
+    filas = _hoja_xls(path)
+
+    idx = {}
+    editorial_actual = ""
+    resultado = []
+
+    for fila in filas:
+        if not idx and _fila_encabezado(fila, _ETIQUETAS_STOCK):
+            idx = _mapa_encabezado(fila, _ETIQUETAS_STOCK)
+            continue
+
+        if len(fila) > 2 and _plano(_celda(fila, 1)) == "familia" and _celda(fila, 2):
+            editorial_actual = re.sub(r"^\(\d+\)\s*-\s*", "", str(fila[2]).strip())
+            continue
+
+        if not idx:
+            continue
+
+        ean = _es_ean(_celda(fila, idx.get("articulo", -1)))
+        if not ean:
+            continue
+
+        unidades = int(_celda(fila, idx.get("stock", -1)) or 0)
+        valor_eur = float(_celda(fila, idx.get("pvp", -1)) or 0)
+        pvp = round(valor_eur / unidades, 2) if unidades else 0.0
+
+        resultado.append({
+            "ean": ean,
+            "titulo": str(_celda(fila, idx.get("descripcion", -1)) or "").strip(),
+            "autor": str(_celda(fila, idx.get("autor", -1)) or "").strip(),
+            "editorial": editorial_actual,
+            "cod_editorial": "",
+            "unidades": unidades,
+            "valor_eur": round(valor_eur, 2),
+            "pvp": pvp,
+            "revisado": False,
+        })
+
+    return resultado
+
+
 def leer_stock(path):
     path = Path(path)
-    return leer_stock_csv(path) if path.suffix.lower() == ".csv" else leer_stock_pdf(path)
+    sufijo = path.suffix.lower()
+    if sufijo == ".csv":
+        return leer_stock_csv(path)
+    if sufijo in (".xls", ".xlsx"):
+        return leer_stock_xls(path)
+    return leer_stock_pdf(path)
 
 
 # ------------------------------------------------------------------ VENTAS
@@ -363,6 +471,57 @@ def leer_ventas_csv(path):
         return ventas
 
 
+_ETIQUETAS_VENTAS = {"fecha", "articulo", "descripcion", "cnt.", "importe"}
+
+
+def leer_ventas_xls(path):
+    """
+    Lector del XLS "Ventas: Ventas diarias" que exporta Geslib directo.
+    Una fila por línea de venta, sin agrupar — más simple que el de stock.
+
+    Las líneas de descuento tipo "3X2 LIBROS USADOS" traen '***' en vez de
+    EAN y cantidad negativa: no son ventas de un título real, quedan fuera
+    igual que en el lector de CSV.
+    """
+    filas = _hoja_xls(path)
+
+    idx = {}
+    ventas = []
+
+    for fila in filas:
+        if not idx and _fila_encabezado(fila, _ETIQUETAS_VENTAS):
+            idx = _mapa_encabezado(fila, _ETIQUETAS_VENTAS)
+            continue
+
+        if not idx:
+            continue
+
+        ean = _es_ean(_celda(fila, idx.get("articulo", -1)))
+        if not ean:
+            continue
+
+        fecha_valor = _celda(fila, idx.get("fecha", -1))
+        fecha = (fecha_valor.strftime("%d/%m/%Y") if hasattr(fecha_valor, "strftime")
+                 else str(fecha_valor))
+        cantidad = _celda(fila, idx.get("cnt.", -1))
+        unidades = int(cantidad) if str(cantidad).strip() not in ("", "None") else 1
+
+        ventas.append({
+            "fecha": fecha,
+            "ean": ean,
+            "titulo": str(_celda(fila, idx.get("descripcion", -1)) or "").strip(),
+            "unidades": unidades,
+            "importe_eur": round(float(_celda(fila, idx.get("importe", -1)) or 0), 2),
+        })
+
+    return ventas
+
+
 def leer_ventas(path):
     path = Path(path)
-    return leer_ventas_csv(path) if path.suffix.lower() == ".csv" else leer_ventas_pdf(path)
+    sufijo = path.suffix.lower()
+    if sufijo == ".csv":
+        return leer_ventas_csv(path)
+    if sufijo in (".xls", ".xlsx"):
+        return leer_ventas_xls(path)
+    return leer_ventas_pdf(path)
