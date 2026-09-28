@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boletín de septiembre — Librería Arenales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#faf9f6; --tinte:#eef3f0; --sup:#ffffff;
+  --marca:#024228; --solido:#024228; --sobre:#ffffff;
+  --tinta:#16251e; --tinta-2:#5d6b64; --naranja:#e95513; --linea:#dbe3dd;
+  --bg:var(--papel); --fg:var(--tinta); --fg-2:var(--tinta-2);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a14; --fg:#f0f4f1; --fg-2:#a3b3aa; --sup:#15241d; --tinte:#15241d;
+    --linea:#2b3a33; --marca:#ffffff; --solido:#ffffff; --sobre:#0e1a14; --naranja:#ff8a5c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a14; --fg:#f0f4f1; --fg-2:#a3b3aa; --sup:#15241d; --tinte:#15241d;
+  --linea:#2b3a33; --marca:#ffffff; --solido:#ffffff; --sobre:#0e1a14; --naranja:#ff8a5c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:Montserrat,system-ui,sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+h1{margin:0;font-weight:700;letter-spacing:-.022em;line-height:1.08;color:var(--marca)}
+.env{max-width:74rem;margin:0 auto;padding:0 28px}
+.lab{font-size:.665rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--fg-2);margin:0}
+
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 93%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.nav .env{display:flex;align-items:center;gap:22px;height:60px}
+.marca{font-weight:700;font-size:1.02rem;color:var(--marca);text-decoration:none;white-space:nowrap}
+.nav nav{margin-left:auto;display:flex;gap:22px;overflow-x:auto;scrollbar-width:none}
+.nav nav::-webkit-scrollbar{display:none}
+.nav nav a{font-size:.665rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+  text-decoration:none;color:var(--fg-2);white-space:nowrap}
+.nav nav a:hover,.nav nav a.on{color:var(--marca)}
+.nav nav a.on{text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--naranja);text-decoration-thickness:2px}
+
+.cabecera .env{padding:54px 28px 30px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
+.cabecera h1{font-size:clamp(1.8rem,4.2vw,2.7rem);margin-top:12px}
+.selector{display:flex;gap:8px;align-items:center}
+.selector select{font:inherit;font-size:.85rem;padding:10px 14px;border:1px solid var(--linea);
+  background:var(--sup);color:var(--fg)}
+
+.hoja{max-width:680px;margin:0 auto;padding:0 28px 20px}
+.hoja img{width:100%;border:1px solid var(--linea)}
+
+.acciones{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:26px 28px 70px}
+.btn{text-decoration:none;padding:13px 24px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:600;border:1.5px solid transparent}
+.btn-a{background:var(--solido);color:var(--sobre)}
+.btn-b{border-color:var(--marca);color:var(--marca)}
+
+.pie-sitio{background:var(--tinte);border-top:1px solid var(--linea)}
+.pie-sitio .env{padding:44px 28px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+.pie-sitio p{margin:0;font-size:.9rem;color:var(--fg-2)}
+.volver{font-size:.665rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--naranja);text-decoration:none}
+.aviso{background:var(--solido);color:var(--sobre);text-align:center;padding:8px 16px;font-size:.66rem;
+  letter-spacing:.18em;text-transform:uppercase;font-weight:600;opacity:.9}
+</style>
+</head>
+<body>
+
+<div class="aviso">Maqueta v4 · boletín de ejemplo</div>
+
+<header class="nav">
+  <div class="env">
+    <a class="marca" href="maqueta.html">Librería Arenales</a>
+    <nav>
+      <a href="maqueta.html">La librería</a>
+      <a href="maqueta.html#espacio">El espacio</a>
+      <a href="maqueta.html#boletin" class="on">El boletín</a>
+      <a href="chat.html">El librero</a>
+    </nav>
+  </div>
+</header>
+
+<section class="cabecera">
+  <div class="env">
+    <div>
+      <p class="lab">El boletín de Arenales</p>
+      <h1>Septiembre 2026</h1>
+    </div>
+    <div class="selector">
+      <label class="lab" for="num">Otros números</label>
+      <select id="num" aria-label="Elegir número">
+        <option>Septiembre 2026</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<div class="hoja">
+  <img src="img/espacio/newsletter-completo.jpg" alt="Boletín de septiembre de 2026 completo">
+</div>
+
+<div class="acciones">
+  <a class="btn btn-a" href="#">Suscribirme al boletín</a>
+  <a class="btn btn-b" href="#">Descargar en PDF</a>
+</div>
+
+<footer class="pie-sitio">
+  <div class="env">
+    <p>Librería Arenales · C. de Vallehermoso, 110 · Chamberí, Madrid</p>
+    <a class="volver" href="maqueta.html">← Volver a la librería</a>
+  </div>
+</footer>
+
+</body>
+</html>

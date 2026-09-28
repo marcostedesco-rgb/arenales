@@ -3,13 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Librería Arenales · Chamberí, Madrid</title>
-<meta name="description" content="Librería independiente en el barrio de Chamberí, Madrid. Literatura hispanoamericana, club de lectura, cuentacuentos los sábados y una sala para presentaciones y talleres.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Librería Arenales · Chamberí, Madrid">
-<meta property="og:description" content="Librería independiente en el barrio de Chamberí, Madrid. Literatura hispanoamericana, club de lectura, cuentacuentos los sábados y una sala para presentaciones y talleres.">
-<meta property="og:url" content="https://www.arenaleslibreria.com/">
-<meta property="og:image" content="https://www.arenaleslibreria.com/img/espacio/fachada.jpg">
+<title>Arenales — Maqueta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -90,7 +84,6 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 .credito a{color:var(--naranja);font-weight:600;text-underline-offset:3px}
 .dos{display:grid;grid-template-columns:260px minmax(0,1fr);gap:52px;margin-top:44px;align-items:start}
 .dos video{width:100%;background:#000}
-.dos img{width:100%;margin-bottom:16px}
 .colofon{margin:0}
 .colofon div{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid var(--linea)}
 .colofon div:first-child{border-top:1px solid var(--linea)}
@@ -137,134 +130,27 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
   .c5,.c4,.c3,.c7{grid-column:span 1}
   .fa,.fb{height:auto}
   .galeria img{aspect-ratio:1/1}
-  .dos video,.dos img{max-width:270px}
+  .dos video{max-width:270px}
   .pie-sitio .env{grid-template-columns:1fr 1fr}
   .colofon dt{flex:0 0 7rem}
 }
+.aviso{background:var(--solido);color:var(--sobre);text-align:center;padding:8px 16px;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;opacity:.9}
 </style>
 </head>
 <body>
 
-<script>
-  // ---------- datos de la librería ----------
-  const LIBRERIA = {
-    direccion:  "C. de Vallehermoso, 110",
-    barrio:     "Barrio de Chamberí, Madrid · metro Canal",
-    maps:       "https://maps.app.goo.gl/s3nLBwanzGgBywgb7",
-    telefono:   "679 78 52 93",
-    whatsapp:   "34679785293",
-    correo:     "contacto@arenaleslibreria.com",
-    instagram:  "https://www.instagram.com/arenales.libreria/",
-    horario:    { dias: "De martes a sábado", manana: "10:00 – 14:00", tarde: "17:00 – 21:00" },
-  };
+<div class="aviso">Maqueta v4 · contenido de ejemplo</div>
 
-  // ---------- cinta de anuncios ----------
-  const CINTA = [
-    "Cuentacuentos los sábados a las 12",
-    "Club de lectura con el Teatro de la Abadía",
-    "Presentaciones y grabaciones en la sala del fondo",
-    "3×2 en libros de segunda mano",
-  ];
-
-  // ---------- la sala del fondo ----------
-  const ESPACIO = {
-    capacidad:    "20 personas sentadas",
-    superficie:   "40 m²",
-    equipamiento: "Sillas, mesa baja, wifi, luz de riel",
-    luz:          "Ventana al patio interior",
-    bueno:        "Presentaciones, pódcast, talleres, clubes",
-    horarios:     "Fuera del horario comercial",
-    playlist:     "https://www.youtube.com/playlist?list=PLI19GhFs5U5CKGqHDhS8EMyinFrt6Lhjs",
-  };
-
-  // ---------- boletines ----------
-  // BOLETINES lo usan index.html (muestra el primero, como portada) y
-  // newsletter.html (arma el selector con todos).
-  const BOLETINES = [
-    { id: "2026-09", titulo: "Septiembre 2026",
-      imagen: "img/espacio/newsletter-completo.jpg",
-      portada: "img/espacio/newsletter-portada.jpg",
-      pdf: "newsletter/2026-09.pdf" },
-  ];
-
-  const ALTA_BOLETIN = "https://4c26b6c3.sibforms.com/serve/MUIFAN_NrGp9TAZur-UMZvlCZm0ahmZJA0lI2rRy7vgQa7_XlBYjeJ8yV0W-JpYT-V-h_sq4oqQAF0I4hAGv051eDkSbSfairjDhyzjnZDyAWZGLi6spboJ6oJRmT8LX_J2MXAiLtUnb_0Ce2g7ouB-Qo41WavPxRLmZr3chSLV8JA2HMrGS4C0dwrTZU9bHxOSLluQB_zS1NxJRZw==";
-
-  function hidratar() {
-    // cinta: se repite dos veces seguidas para que el bucle no deje hueco
-    const spans = CINTA.map((t) => `<span>${t} <i>◆</i></span>`).join('');
-    document.getElementById('cinta-contenido').innerHTML = spans + spans;
-
-    // hero
-    document.getElementById('dato-maps').href = LIBRERIA.maps;
-    document.getElementById('dato-maps').textContent = LIBRERIA.direccion + ' ↗';
-    document.getElementById('dato-barrio').textContent = LIBRERIA.barrio;
-    document.getElementById('dato-dias').textContent = LIBRERIA.horario.dias;
-    document.getElementById('dato-manana').textContent = LIBRERIA.horario.manana;
-    document.getElementById('dato-tarde').textContent = LIBRERIA.horario.tarde;
-
-    // pie de página
-    document.getElementById('pie-direccion').href = LIBRERIA.maps;
-    document.getElementById('pie-direccion').textContent = LIBRERIA.direccion;
-    document.getElementById('pie-dias').textContent = LIBRERIA.horario.dias;
-    document.getElementById('pie-manana').textContent = LIBRERIA.horario.manana;
-    document.getElementById('pie-tarde').textContent = LIBRERIA.horario.tarde;
-    document.getElementById('pie-telefono').href = 'tel:+' + LIBRERIA.whatsapp;
-    document.getElementById('pie-telefono').textContent = LIBRERIA.telefono;
-    document.getElementById('pie-correo').href = 'mailto:' + LIBRERIA.correo;
-    document.getElementById('pie-correo').textContent = LIBRERIA.correo;
-    document.getElementById('pie-instagram').href = LIBRERIA.instagram;
-    document.getElementById('pie-maps').href = LIBRERIA.maps;
-
-    // el espacio
-    document.getElementById('dato-capacidad').textContent = ESPACIO.capacidad;
-    document.getElementById('dato-superficie').textContent = ESPACIO.superficie;
-    document.getElementById('dato-equipamiento').textContent = ESPACIO.equipamiento;
-    document.getElementById('dato-luz').textContent = ESPACIO.luz;
-    document.getElementById('dato-bueno').textContent = ESPACIO.bueno;
-    document.getElementById('dato-horarios-espacio').textContent = ESPACIO.horarios;
-    document.getElementById('link-playlist').href = ESPACIO.playlist;
-
-    const textoWhatsapp = encodeURIComponent(
-      'Hola, quería consultar por el espacio de la librería para un evento.'
-    );
-    document.getElementById('btn-whatsapp-espacio').href =
-      'https://wa.me/' + LIBRERIA.whatsapp + '?text=' + textoWhatsapp;
-
-    const asuntoCorreo = encodeURIComponent('Consulta por el espacio');
-    const cuerpoCorreo = encodeURIComponent(
-      'Fecha tentativa:\nTipo de evento:\nCuánta gente:\nHorario:\n'
-    );
-    document.getElementById('btn-correo-espacio').href =
-      'mailto:' + LIBRERIA.correo + '?subject=' + asuntoCorreo + '&body=' + cuerpoCorreo;
-
-    // el boletín: portada del más reciente
-    const ultimo = BOLETINES[BOLETINES.length - 1];
-    const imgPortada = document.getElementById('img-portada-boletin');
-    imgPortada.src = ultimo.portada;
-    imgPortada.alt = 'Portada del boletín de ' + ultimo.titulo;
-    document.getElementById('titulo-boletin').textContent = ultimo.titulo;
-
-    document.getElementById('form-alta').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (ALTA_BOLETIN) {
-        window.open(ALTA_BOLETIN, '_blank', 'noopener');
-      } else {
-        const asunto = encodeURIComponent('Quiero suscribirme al boletín');
-        window.location.href = 'mailto:' + LIBRERIA.correo + '?subject=' + asunto;
-      }
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', hidratar);
-</script>
-
-<div class="cinta"><div id="cinta-contenido"></div></div>
+<div class="cinta"><div>
+  <span>Cuentacuentos los sábados a las 12 <i>◆</i></span><span>Club de lectura con el Teatro de la Abadía <i>◆</i></span><span>Presentaciones y grabaciones en la sala del fondo <i>◆</i></span><span>3×2 en libros de segunda mano <i>◆</i></span>
+  <span>Cuentacuentos los sábados a las 12 <i>◆</i></span><span>Club de lectura con el Teatro de la Abadía <i>◆</i></span><span>Presentaciones y grabaciones en la sala del fondo <i>◆</i></span><span>3×2 en libros de segunda mano <i>◆</i></span>
+</div></div>
 
 <header class="nav">
   <div class="env">
-    <a class="marca" href="index.html">Librería Arenales</a>
+    <a class="marca" href="maqueta.html">Librería Arenales</a>
     <nav>
-      <a href="index.html" class="on">La librería</a>
+      <a href="maqueta.html" class="on">La librería</a>
       <a href="#espacio">El espacio</a>
       <a href="#boletin">El boletín</a>
       <a href="chat.html">El librero</a>
@@ -281,12 +167,12 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
       <dl class="datos">
         <div>
           <dt>Dónde</dt>
-          <dd><a id="dato-maps" href="#" target="_blank" rel="noopener"></a>
-            <small id="dato-barrio"></small></dd>
+          <dd><a href="https://maps.google.com/?q=Librería+Arenales+Vallehermoso+110+Madrid" target="_blank" rel="noopener">C. de Vallehermoso, 110 ↗</a>
+            <small>Barrio de Chamberí, Madrid · metro Canal</small></dd>
         </div>
-        <div><dt>Abrimos</dt><dd id="dato-dias"></dd></div>
-        <div><dt>Mañanas</dt><dd id="dato-manana"></dd></div>
-        <div><dt>Tardes</dt><dd id="dato-tarde"></dd></div>
+        <div><dt>Abrimos</dt><dd>De martes a sábado</dd></div>
+        <div><dt>Mañanas</dt><dd>10:00 – 14:00</dd></div>
+        <div><dt>Tardes</dt><dd>17:00 – 21:00</dd></div>
       </dl>
     </div>
     <figure><img src="img/espacio/fachada.jpg" alt="Fachada de la librería con el banco delante"></figure>
@@ -294,11 +180,11 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 </section>
 
 <div class="galeria">
-  <figure class="c5 fa"><img src="img/espacio/mostrador.jpg" alt="El mostrador y la mesa de novedades" loading="lazy"></figure>
-  <figure class="c4 fa"><img src="img/espacio/cartel.jpg" alt="El cartel de la calle" loading="lazy"></figure>
-  <figure class="c3 fa"><img src="img/espacio/pasillo.jpg" alt="El pasillo con las flores secas" loading="lazy"></figure>
-  <figure class="c5 fb"><img src="img/espacio/mesa-borges.jpg" alt="Mesa de novedades contra el ladrillo" loading="lazy"></figure>
-  <figure class="c7 fb"><img src="img/espacio/narrativa.jpg" alt="Estantería de narrativa" loading="lazy"></figure>
+  <figure class="c5 fa"><img src="img/espacio/mostrador.jpg" alt="El mostrador y la mesa de novedades"></figure>
+  <figure class="c4 fa"><img src="img/espacio/cartel.jpg" alt="El cartel de la calle"></figure>
+  <figure class="c3 fa"><img src="img/espacio/pasillo.jpg" alt="El pasillo con las flores secas"></figure>
+  <figure class="c5 fb"><img src="img/espacio/mesa-borges.jpg" alt="Mesa de novedades contra el ladrillo"></figure>
+  <figure class="c7 fb"><img src="img/espacio/narrativa.jpg" alt="Estantería de narrativa"></figure>
 </div>
 
 <section class="espacio" id="espacio">
@@ -307,27 +193,24 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     <h2>El espacio</h2>
     <p class="intro">Una sala al fondo de la librería, con pared de ladrillo visto, luz natural y el silencio de un local entre estanterías. La usamos para presentaciones, clubes de lectura, talleres y grabaciones — y está abierta a quien quiera hacer algo aquí.</p>
 
-    <p class="credito">Aquí se grabó <b>Pensar Cuba</b>, la serie de entrevistas de <b>elTOQUE</b> con Julio A. Fernández Estrada. <a id="link-playlist" href="#" target="_blank" rel="noopener">Ver los capítulos →</a></p>
+    <p class="credito">Aquí se grabó <b>Pensar Cuba</b>, la serie de entrevistas de <b>elTOQUE</b> con Julio A. Fernández Estrada. <a href="#">Ver los capítulos →</a></p>
 
     <div class="dos">
-      <div>
-        <img id="foto-sala" src="img/espacio/sala.jpg" alt="La sala del fondo, vista general" loading="lazy" onerror="this.remove()">
-        <video controls playsinline preload="metadata" poster="img/espacio/recorrido-poster.jpg">
-          <source src="img/espacio/espacio-recorrido.mp4" type="video/mp4">
-        </video>
-      </div>
+      <video controls playsinline preload="metadata" poster="img/espacio/recorrido-poster.jpg">
+        <source src="img/espacio/espacio-recorrido.mp4" type="video/mp4">
+      </video>
       <div>
         <dl class="colofon">
-          <div><dt>Capacidad</dt><dd id="dato-capacidad"></dd></div>
-          <div><dt>Superficie</dt><dd id="dato-superficie"></dd></div>
-          <div><dt>Equipamiento</dt><dd id="dato-equipamiento"></dd></div>
-          <div><dt>Luz natural</dt><dd id="dato-luz"></dd></div>
-          <div><dt>Bueno para</dt><dd id="dato-bueno"></dd></div>
-          <div><dt>Horarios</dt><dd id="dato-horarios-espacio"></dd></div>
+          <div><dt>Capacidad</dt><dd>20 personas sentadas</dd></div>
+          <div><dt>Superficie</dt><dd>40 m²</dd></div>
+          <div><dt>Equipamiento</dt><dd>Sillas, mesa baja, wifi, luz de riel</dd></div>
+          <div><dt>Luz natural</dt><dd>Ventana al patio interior</dd></div>
+          <div><dt>Bueno para</dt><dd>Presentaciones, pódcast, talleres, clubes</dd></div>
+          <div><dt>Horarios</dt><dd>Fuera del horario comercial</dd></div>
         </dl>
         <div class="acciones">
-          <a class="btn btn-a" id="btn-whatsapp-espacio" href="#" target="_blank" rel="noopener">Cuéntanos tu idea por WhatsApp</a>
-          <a class="btn btn-b" id="btn-correo-espacio" href="#">Escribir un correo</a>
+          <a class="btn btn-a" href="#">Cuéntanos tu idea por WhatsApp</a>
+          <a class="btn btn-b" href="#">Escribir un correo</a>
         </div>
       </div>
     </div>
@@ -341,16 +224,16 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
       <h2>El boletín</h2>
       <p class="texto">Un correo al mes, y nada más. <b>Tres libros que nos han gustado</b>, el calendario de cuentacuentos, clubes y presentaciones, y alguna efeméride para el que le gusten estas cosas.</p>
       <p class="texto">Es la forma más sencilla de enterarte de lo que pasa en la librería sin estar pendiente de las redes.</p>
-      <form class="alta" id="form-alta">
-        <input type="email" id="campo-alta" placeholder="Tu correo" aria-label="Tu correo">
-        <button type="submit">Suscribirme</button>
+      <form class="alta" onsubmit="return false">
+        <input type="email" placeholder="Tu correo" aria-label="Tu correo">
+        <button>Suscribirme</button>
       </form>
       <p class="mini">Puedes darte de baja cuando quieras. No compartimos tu correo con nadie.</p>
     </div>
     <div class="portada">
       <p class="lab" style="margin-bottom:12px">Último número</p>
-      <a class="tapa" href="newsletter.html"><img id="img-portada-boletin" src="" alt="" loading="lazy"></a>
-      <div class="pie"><span id="titulo-boletin"></span><a href="newsletter.html">Leerlo entero →</a></div>
+      <a class="tapa" href="newsletter.html"><img src="img/espacio/newsletter-portada.jpg" alt="Portada del boletín de septiembre"></a>
+      <div class="pie"><span>Septiembre 2026</span><a href="newsletter.html">Leerlo entero →</a></div>
     </div>
   </div>
 </section>
@@ -363,21 +246,21 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     </div>
     <div>
       <h3>Dónde</h3>
-      <p><a id="pie-direccion" href="#" target="_blank" rel="noopener"></a></p>
+      <p><a href="https://maps.google.com/?q=Librería+Arenales+Vallehermoso+110+Madrid" target="_blank" rel="noopener">C. de Vallehermoso, 110</a></p>
       <p>28003 Madrid</p>
       <p>Metro Canal</p>
     </div>
     <div>
       <h3>Horario</h3>
-      <p id="pie-dias"></p>
-      <p id="pie-manana"></p>
-      <p id="pie-tarde"></p>
+      <p>Martes a sábado</p>
+      <p>10:00 – 14:00</p>
+      <p>17:00 – 21:00</p>
     </div>
     <div>
       <h3>Contacto</h3>
-      <p><a id="pie-telefono" href="#"></a></p>
-      <p><a id="pie-correo" href="#"></a></p>
-      <p><a id="pie-instagram" href="#" target="_blank" rel="noopener">Instagram</a> · <a id="pie-maps" href="#" target="_blank" rel="noopener">Maps</a></p>
+      <p><a href="#">679 78 52 93</a></p>
+      <p><a href="#">contacto@arenaleslibreria.com</a></p>
+      <p><a href="#">Instagram</a> · <a href="#">Maps</a></p>
     </div>
   </div>
 </footer>
