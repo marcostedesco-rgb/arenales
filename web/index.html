@@ -173,7 +173,6 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     equipamiento: "Sillas, mesa baja, wifi, luz de riel",
     luz:          "Ventana al patio interior",
     bueno:        "Presentaciones, pódcast, talleres, clubes",
-    horarios:     "Fuera del horario comercial",
     playlist:     "https://www.youtube.com/playlist?list=PLI19GhFs5U5CKGqHDhS8EMyinFrt6Lhjs",
   };
 
@@ -221,7 +220,6 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     document.getElementById('dato-equipamiento').textContent = ESPACIO.equipamiento;
     document.getElementById('dato-luz').textContent = ESPACIO.luz;
     document.getElementById('dato-bueno').textContent = ESPACIO.bueno;
-    document.getElementById('dato-horarios-espacio').textContent = ESPACIO.horarios;
     document.getElementById('link-playlist').href = ESPACIO.playlist;
 
     const textoWhatsapp = encodeURIComponent(
@@ -323,7 +321,6 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
           <div><dt>Equipamiento</dt><dd id="dato-equipamiento"></dd></div>
           <div><dt>Luz natural</dt><dd id="dato-luz"></dd></div>
           <div><dt>Bueno para</dt><dd id="dato-bueno"></dd></div>
-          <div><dt>Horarios</dt><dd id="dato-horarios-espacio"></dd></div>
         </dl>
         <div class="acciones">
           <a class="btn btn-a" id="btn-whatsapp-espacio" href="#" target="_blank" rel="noopener">Cuéntanos tu idea por WhatsApp</a>
