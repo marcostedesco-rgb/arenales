@@ -83,6 +83,20 @@ def cargar_datos(ruta_stock, ruta_ventas, config=None):
     else:
         excluido = None
 
+    # --- fuera los títulos que no están en la estantería
+    # El informe nuevo de Geslib ("Listado de artículos") trae el catálogo
+    # entero, incluidas las fichas de títulos que ya no tenemos. Un título con
+    # cero ejemplares y cero ventas en el período no es stock muerto: es una
+    # ficha vieja. Contarlo infla el porcentaje de "sin venta" y, peor, mete
+    # en la lista de devolución libros que el empleado no va a encontrar.
+    # Los que tienen cero (o stock negativo) PERO vendieron sí se quedan:
+    # ésos son roturas de stock y tienen que llegar a la lista de reposición.
+    vendidos = {v["ean"] for v in ventas}
+    fantasmas = [a for a in stock if a["unidades"] <= 0 and a["ean"] not in vendidos]
+    if fantasmas:
+        stock = [a for a in stock if not (a["unidades"] <= 0 and a["ean"] not in vendidos)]
+    catalogo_sin_stock = len(fantasmas)
+
     # --- agregación de ventas por título
     por_ean = defaultdict(lambda: {"unidades": 0, "importe": 0.0,
                                    "titulo": "", "fechas": []})
@@ -116,6 +130,7 @@ def cargar_datos(ruta_stock, ruta_ventas, config=None):
         "periodo_desde_dt": periodo_desde_dt,
         "periodo_hasta_dt": periodo_hasta_dt,
         "excluido": excluido,
+        "catalogo_sin_stock": catalogo_sin_stock,
     }
 
 
@@ -128,6 +143,7 @@ def analizar(ruta_stock, ruta_ventas, config=None):
     periodo_desde_dt = datos["periodo_desde_dt"]
     periodo_hasta_dt = datos["periodo_hasta_dt"]
     excluido = datos["excluido"]
+    catalogo_sin_stock = datos["catalogo_sin_stock"]
     hoy = periodo_hasta_dt
 
     # --- clasificación título por título
@@ -201,6 +217,7 @@ def analizar(ruta_stock, ruta_ventas, config=None):
     resultado = _resumir(fichas, cfg, meses, facturacion_total, unidades_vendidas,
                          len(por_ean), periodo_desde_dt, periodo_hasta_dt)
     resultado["excluido"] = excluido
+    resultado["catalogo_sin_stock"] = catalogo_sin_stock
     return resultado
 
 
