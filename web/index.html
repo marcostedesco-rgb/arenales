@@ -141,6 +141,44 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
   .pie-sitio .env{grid-template-columns:1fr 1fr}
   .colofon dt{flex:0 0 7rem}
 }
+
+/* ---------- fiesta de aniversario ---------- */
+/* Paleta propia, sacada del cartel que hizo la CM: crema #fffae6, verde
+   #2d5b41 y amarillo #f2de6d. No sigue el modo claro/oscuro de la página a
+   propósito — es una pieza gráfica, y cambiarle los colores la rompería. */
+.fiesta{background:#fffae6;color:#234a34;border-top:1px solid #e4dcc0;border-bottom:1px solid #e4dcc0}
+.fiesta .env{padding:72px 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:54px;align-items:center}
+.fiesta .lab{color:#6b8a74}
+.fiesta h2{color:#234a34;font-size:clamp(2rem,4.8vw,3.1rem);max-width:11ch;margin:14px 0 0}
+.fiesta .cuando{display:inline-flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.fiesta .cuando span{background:#f2de6d;color:#234a34;padding:7px 14px;font-size:.73rem;
+  letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:999px}
+.fiesta .texto{margin:22px 0 0;max-width:44ch;color:#3b5c48;font-size:1rem}
+.fiesta ul{list-style:none;margin:22px 0 0;padding:0;max-width:44ch}
+.fiesta ul li{padding:9px 0;border-top:1px solid #e4dcc0;font-size:.95rem;display:flex;gap:12px;align-items:baseline}
+.fiesta ul li:last-child{border-bottom:1px solid #e4dcc0}
+.fiesta ul li::before{content:"";flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:#f2de6d}
+.fiesta .btn-ig{display:inline-flex;align-items:center;gap:10px;margin-top:26px;background:#234a34;color:#fffae6;
+  text-decoration:none;padding:14px 24px;border-radius:999px;font-size:.7rem;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:700}
+.fiesta .btn-ig:hover{background:#2d5b41}
+.carrusel{min-width:0}
+.tira-fotos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch}
+.tira-fotos::-webkit-scrollbar{display:none}
+.tira-fotos img{flex:0 0 calc(50% - 5px);scroll-snap-align:start;width:100%;height:auto;
+  background:#fffae6;border:1px solid #e4dcc0}
+.flechas{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.flechas button{width:40px;height:40px;border-radius:50%;border:1.5px solid #234a34;background:transparent;
+  color:#234a34;font:inherit;font-size:1rem;line-height:1;cursor:pointer}
+.flechas button:hover{background:#234a34;color:#fffae6}
+@media(max-width:900px){
+  .fiesta .env{grid-template-columns:1fr;gap:30px;padding-top:54px;padding-bottom:54px}
+  .fiesta h2{max-width:none}
+  .fiesta .texto,.fiesta ul{max-width:none}
+  .tira-fotos img{flex:0 0 82%}
+  .flechas{display:none}
+}
 </style>
 </head>
 <body>
@@ -165,6 +203,35 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     "Presentaciones y grabaciones en la sala del fondo",
     "3×2 en libros de segunda mano",
   ];
+
+
+  // ---------- fiesta de aniversario ----------
+  // Las imágenes son el carrusel que publicó la CM en Instagram. Se muestran
+  // tal cual: el diseño es suyo y no se recrea en HTML.
+  // Pasada la fecha, la sección cambia sola de "lo que viene" a "así fue".
+  const FIESTA = {
+    activa:       true,            // ponelo en false para ocultar la sección
+    fecha_iso:    "2026-10-23",
+    fecha_texto:  "Viernes 23 de octubre",
+    hora:         "18:00 – 21:00",
+    entrada:      "Entrada libre",
+    titulo:       "Fiesta de aniversario",
+    antes: "Arenales cumple dos años y lo celebramos con la puerta abierta: vermú y vino, dos coleccionistas de discos pinchando toda la tarde, las artistas del barrio que nos acompañan desde el principio y un mercadillo de libros de segunda mano. Sin entrada y sin lista: pásate.",
+    despues: "Así celebramos los dos años de la librería: vermú y vino, discos toda la tarde, las artistas del barrio y un mercadillo de segunda mano. Las fotos de la tarde están en Instagram.",
+    programa: [
+      "Vermú y vino",
+      "Dj sets de Chez Seo y Cilla",
+      "Artistas invitadas: Costa Banana y Heartwithaview",
+      "Mercadillo de libros de segunda mano",
+    ],
+    imagenes: [
+      { src: "img/aniversario/aniversario-1.jpg", alt: "Cartel de la fiesta de aniversario, 23 de octubre" },
+      { src: "img/aniversario/aniversario-2.jpg", alt: "Costa Banana, artista colaboradora" },
+      { src: "img/aniversario/aniversario-3.jpg", alt: "Chez Seo y Cilla, los dj sets de la tarde" },
+      { src: "img/aniversario/aniversario-4.jpg", alt: "Heartwithaview, artista colaboradora" },
+      { src: "img/aniversario/aniversario-5.jpg", alt: "Vermú, vino, djs, artistas invitadas y libros de segunda mano" },
+    ],
+  };
 
   // ---------- la sala del fondo ----------
   const ESPACIO = {
@@ -192,9 +259,46 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 
   const ALTA_BOLETIN = "https://4c26b6c3.sibforms.com/serve/MUIFAN_NrGp9TAZur-UMZvlCZm0ahmZJA0lI2rRy7vgQa7_XlBYjeJ8yV0W-JpYT-V-h_sq4oqQAF0I4hAGv051eDkSbSfairjDhyzjnZDyAWZGLi6spboJ6oJRmT8LX_J2MXAiLtUnb_0Ce2g7ouB-Qo41WavPxRLmZr3chSLV8JA2HMrGS4C0dwrTZU9bHxOSLluQB_zS1NxJRZw==";
 
+  function pintarFiesta() {
+    if (!FIESTA.activa) return;
+    // Se considera pasada a partir del día siguiente, para que el mismo día
+    // del evento la web siga diciendo "hoy" y no "así fue".
+    const limite = new Date(FIESTA.fecha_iso + "T23:59:59");
+    const pasado = new Date() > limite;
+
+    document.getElementById('fiesta-etiqueta').textContent = pasado ? 'Así fue' : 'Lo que viene';
+    document.getElementById('fiesta-titulo').textContent = FIESTA.titulo;
+    document.getElementById('fiesta-texto').textContent = pasado ? FIESTA.despues : FIESTA.antes;
+    document.getElementById('fiesta-cta').textContent = pasado ? 'Ver las fotos en Instagram' : 'Más detalles en Instagram';
+    document.getElementById('fiesta-instagram').href = LIBRERIA.instagram;
+
+    document.getElementById('fiesta-cuando').innerHTML =
+      [FIESTA.fecha_texto, FIESTA.hora, FIESTA.entrada]
+        .map((t) => `<span>${t}</span>`).join('');
+
+    document.getElementById('fiesta-programa').innerHTML =
+      FIESTA.programa.map((t) => `<li>${t}</li>`).join('');
+
+    const tira = document.getElementById('fiesta-tira');
+    tira.innerHTML = FIESTA.imagenes
+      .map((im) => `<img src="${im.src}" alt="${im.alt}" loading="lazy">`).join('');
+
+    const paso = () => tira.clientWidth * 0.52;
+    document.getElementById('fiesta-izq').addEventListener('click',
+      () => tira.scrollBy({ left: -paso(), behavior: 'smooth' }));
+    document.getElementById('fiesta-der').addEventListener('click',
+      () => tira.scrollBy({ left: paso(), behavior: 'smooth' }));
+
+    document.getElementById('aniversario').hidden = false;
+  }
+
   function hidratar() {
     // cinta: se repite dos veces seguidas para que el bucle no deje hueco
-    const spans = CINTA.map((t) => `<span>${t} <i>◆</i></span>`).join('');
+    const anuncios = CINTA.slice();
+    if (FIESTA.activa && new Date() <= new Date(FIESTA.fecha_iso + "T23:59:59")) {
+      anuncios.unshift(`${FIESTA.titulo} · ${FIESTA.fecha_texto}, ${FIESTA.hora}`);
+    }
+    const spans = anuncios.map((t) => `<span>${t} <i>◆</i></span>`).join('');
     document.getElementById('cinta-contenido').innerHTML = spans + spans;
 
     // hero
@@ -257,7 +361,10 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     });
   }
 
-  document.addEventListener('DOMContentLoaded', hidratar);
+  document.addEventListener('DOMContentLoaded', () => {
+    hidratar();
+    pintarFiesta();
+  });
 </script>
 
 <div class="cinta"><div id="cinta-contenido"></div></div>
@@ -302,6 +409,30 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
   <figure class="c5 fb"><img src="img/espacio/mesa-borges.jpg" alt="Mesa de novedades contra el ladrillo" loading="lazy"></figure>
   <figure class="c7 fb"><img src="img/espacio/narrativa.jpg" alt="Estantería de narrativa" loading="lazy"></figure>
 </div>
+
+
+<section class="fiesta" id="aniversario" hidden>
+  <div class="env">
+    <div>
+      <p class="lab" id="fiesta-etiqueta"></p>
+      <h2 id="fiesta-titulo"></h2>
+      <div class="cuando" id="fiesta-cuando"></div>
+      <p class="texto" id="fiesta-texto"></p>
+      <ul id="fiesta-programa"></ul>
+      <a class="btn-ig" id="fiesta-instagram" href="#" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span id="fiesta-cta"></span>
+      </a>
+    </div>
+    <div class="carrusel">
+      <div class="tira-fotos" id="fiesta-tira"></div>
+      <div class="flechas">
+        <button type="button" id="fiesta-izq" aria-label="Anterior">←</button>
+        <button type="button" id="fiesta-der" aria-label="Siguiente">→</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="espacio" id="espacio">
   <div class="env">
