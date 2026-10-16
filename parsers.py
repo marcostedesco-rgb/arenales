@@ -28,6 +28,20 @@ def _num(s):
         return 0.0
 
 
+def _num_celda(valor):
+    """Número de una celda, venga como número o como texto.
+
+    calamine devuelve los numéricos ya como float. Pasarlos por _num los
+    rompe, porque _num asume convención española y borra el punto: 21.9
+    se convierte en 219. Los de texto sí van por _num.
+    """
+    if isinstance(valor, bool):
+        return 0.0
+    if isinstance(valor, (int, float)):
+        return float(valor)
+    return _num(valor)
+
+
 def _plano(s):
     """'Descripción' -> 'descripcion' — para comparar encabezados sin acentos."""
     s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
@@ -315,6 +329,62 @@ def leer_stock_csv(path):
 
 _ETIQUETAS_STOCK = {"articulo", "descripcion", "autor", "stock", "pvp"}
 
+# El segundo informe de Geslib ("Artículos: Listado de artículos") es un
+# catálogo plano: una fila por título, sin agrupar por familia, con el EAN en
+# su propia columna y el PVP como precio unitario — no como valor total.
+_ETIQUETAS_CATALOGO = {"titulo", "autor", "nombre editorial", "stock", "pvp", "ean"}
+
+
+def leer_stock_xls_catalogo(path):
+    """
+    Lector del XLS "Artículos: Listado de artículos".
+
+    Diferencias con el de "Valoración de centro", que son justo las que
+    hacían que el otro lector devolviera cero filas:
+
+    - La editorial viene en su propia columna ("Nombre Editorial"); la
+      columna "Editorial" es el código numérico, no el nombre.
+    - El EAN tiene columna propia en vez de ir en "Artículo".
+    - **PVP es el precio unitario**, no el valor total en stock. El valor se
+      calcula multiplicando; en el otro informe se dividía. Confundirlos
+      deja la valoración del inventario mal por un factor igual a las
+      unidades de cada título.
+
+    Se queda con las filas que tienen EAN: así se saltan los encabezados
+    repetidos, los subtotales y los pies de página sin llevar estado.
+    """
+    filas = _hoja_xls(path)
+
+    idx = {}
+    resultado = []
+
+    for fila in filas:
+        if not idx:
+            if _fila_encabezado(fila, _ETIQUETAS_CATALOGO):
+                idx = _mapa_encabezado(fila, _ETIQUETAS_CATALOGO)
+            continue
+
+        ean = _es_ean(_celda(fila, idx.get("ean", -1)))
+        if not ean:
+            continue
+
+        unidades = int(_num_celda(_celda(fila, idx.get("stock", -1))))
+        pvp = _num_celda(_celda(fila, idx.get("pvp", -1)))
+
+        resultado.append({
+            "ean": ean,
+            "titulo": str(_celda(fila, idx.get("titulo", -1)) or "").strip(),
+            "autor": str(_celda(fila, idx.get("autor", -1)) or "").strip(),
+            "editorial": str(_celda(fila, idx.get("nombre editorial", -1)) or "").strip(),
+            "cod_editorial": "",   # este informe no trae el código, solo el nombre
+            "unidades": unidades,
+            "valor_eur": round(unidades * pvp, 2) if unidades > 0 else 0.0,
+            "pvp": round(pvp, 2),
+            "revisado": False,
+        })
+
+    return resultado
+
 
 def leer_stock_xls(path):
     """
@@ -379,7 +449,17 @@ def leer_stock(path):
     if sufijo == ".csv":
         return leer_stock_csv(path)
     if sufijo in (".xls", ".xlsx"):
-        return leer_stock_xls(path)
+        # Geslib exporta dos informes distintos con la misma extensión.
+        # Se elige por el encabezado, no por el nombre del archivo.
+        for fila in _hoja_xls(path):
+            if _fila_encabezado(fila, _ETIQUETAS_CATALOGO):
+                return leer_stock_xls_catalogo(path)
+            if _fila_encabezado(fila, _ETIQUETAS_STOCK):
+                return leer_stock_xls(path)
+        raise ValueError(
+            f"{path.name}: no reconozco el encabezado. Esperaba el informe "
+            "'Valoración de centro' o 'Listado de artículos' de Geslib."
+        )
     return leer_stock_pdf(path)
 
 
