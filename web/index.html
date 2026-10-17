@@ -106,7 +106,7 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 .boletin .texto{max-width:46ch;color:var(--fg-2);margin:22px 0 0}
 .boletin .texto b{color:var(--fg);font-weight:600}
 .alta{display:flex;margin-top:28px;max-width:26rem;border:1.5px solid var(--marca)}
-.alta input{flex:1;min-width:0;border:0;background:transparent;padding:14px 18px;font:inherit;font-size:.94rem;color:var(--fg)}
+.alta input{flex:1 1 0;min-width:0;width:100%;border:0;background:transparent;padding:14px 18px;font:inherit;font-size:.94rem;color:var(--fg)}
 .alta input:focus{outline:none}
 .alta button{border:0;background:var(--solido);color:var(--sobre);padding:14px 24px;font:inherit;font-weight:600;
   font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
@@ -166,7 +166,7 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 .tira-fotos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
   -webkit-overflow-scrolling:touch}
 .tira-fotos::-webkit-scrollbar{display:none}
-.tira-fotos img{flex:0 0 calc(50% - 5px);scroll-snap-align:start;width:100%;height:auto;
+.tira-fotos img{flex:0 0 calc(50% - 5px);scroll-snap-align:start;width:calc(50% - 5px);height:auto;
   background:#fffae6;border:1px solid #e4dcc0}
 .flechas{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .flechas button{width:40px;height:40px;border-radius:50%;border:1.5px solid #234a34;background:transparent;
@@ -176,8 +176,112 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
   .fiesta .env{grid-template-columns:1fr;gap:30px;padding-top:54px;padding-bottom:54px}
   .fiesta h2{max-width:none}
   .fiesta .texto,.fiesta ul{max-width:none}
-  .tira-fotos img{flex:0 0 82%}
+  .tira-fotos img{flex:0 0 82%;width:82%}
   .flechas{display:none}
+}
+
+/* ---------- orden de las secciones ---------- */
+/* El orden lo decide el CSS, no el HTML: así la fiesta puede ir primera
+   mientras falte para el evento y bajar sola al día siguiente, sin mover
+   nada de sitio. El marcado queda en un orden estable y legible. */
+.secciones{display:flex;flex-direction:column}
+.secciones > .fiesta  {order:1}
+.secciones > .invita  {order:2}
+.secciones > .boletin {order:3}
+.secciones > .hero    {order:4}
+.secciones > .espacio {order:5}
+.secciones > .galeria {order:6}
+/* pasado el evento: el chat pasa al frente y la fiesta baja a su sitio */
+body.fiesta-pasada .secciones > .invita {order:1}
+body.fiesta-pasada .secciones > .boletin{order:2}
+body.fiesta-pasada .secciones > .fiesta {order:3}
+
+/* ---------- barra de dirección y horario ---------- */
+.barra-sitio{background:var(--tinte);border-bottom:1px solid var(--linea)}
+.barra-sitio .env{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;
+  padding-top:9px;padding-bottom:9px;font-size:.8rem}
+.barra-sitio a{color:var(--marca);text-decoration:none;font-weight:600;
+  border-bottom:1px solid var(--linea)}
+.barra-sitio a:hover{border-color:var(--marca)}
+.barra-sitio .estado{color:var(--fg-2);display:inline-flex;align-items:center;gap:7px}
+.barra-sitio .punto{width:7px;height:7px;border-radius:50%;background:var(--fg-2);flex:0 0 auto}
+.barra-sitio .abierto .punto{background:#2e9e63}
+
+/* ---------- invitación al librero ---------- */
+.invita{background:var(--tinte);border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
+.invita .env{padding:72px 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:54px;align-items:center}
+.invita h2{font-size:clamp(1.9rem,4.4vw,3rem);max-width:11ch;margin:14px 0 0}
+.invita .texto{margin:22px 0 0;max-width:42ch;color:var(--fg-2)}
+.burbuja{background:var(--sup);border:1px solid var(--linea);padding:20px 22px;font-size:1.02rem}
+.burbuja em{display:block;font-style:normal;color:var(--fg-2);font-size:.9rem;margin-top:10px}
+.sugeridas{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.sugeridas a{border:1px solid var(--linea);padding:9px 15px;font-size:.84rem;color:var(--fg-2);
+  text-decoration:none;background:var(--bg)}
+.sugeridas a:hover{border-color:var(--marca);color:var(--marca)}
+.invita .btn{margin-top:18px;display:inline-block}
+
+@media(max-width:900px){
+  .invita .env{grid-template-columns:1fr;gap:28px;padding-top:54px;padding-bottom:54px}
+  .invita h2{max-width:none}
+  .invita .texto{max-width:none}
+}
+
+/* ---------- teléfono ---------- */
+@media(max-width:700px){
+  .env{padding:0 20px}
+  .espacio .env,.boletin .env,.invita .env,.fiesta .env,
+  .pie-sitio .env,.nav .env,.hero .env{padding-left:20px;padding-right:20px}
+
+  /* una frase entera puede no entrar en una línea de 390 px */
+  .cinta{white-space:normal}
+
+  /* el carrusel deja asomar la foto siguiente: sin ese borde a la vista
+     nadie sabe que hay más y nadie arrastra */
+  .tira-fotos img{flex:0 0 86%;width:86%}
+
+  .cinta div{animation:none;display:block;padding:9px 0;text-align:center}
+  .cinta span:not(:first-child){display:none}
+  .cinta span{padding:0;font-size:.63rem;letter-spacing:.14em}
+  .cinta i{display:none}
+
+  .nav .env{height:auto;flex-direction:column;align-items:stretch;gap:9px;padding-top:12px;padding-bottom:11px}
+  .nav .marca{font-size:1rem}
+  .nav nav{margin-left:0;width:100%;gap:10px;justify-content:space-between;overflow:visible}
+  .nav nav a{font-size:.58rem;letter-spacing:.09em}
+
+  .barra-sitio .env{flex-direction:column;align-items:flex-start;gap:4px;font-size:.78rem}
+
+  .hero .env{display:flex;flex-direction:column;gap:0;padding-top:34px;padding-bottom:52px}
+  .hero .col{display:contents}
+  .hero .lab{order:1}
+  .hero h1{order:2;font-size:clamp(2.1rem,10.4vw,2.9rem);max-width:none;margin-top:14px}
+  .hero figure{order:3;margin:26px -20px 0}
+  .hero figure img{aspect-ratio:4/5}
+  .hero .bajada{order:4;max-width:none;margin-top:26px;font-size:1rem}
+  .hero .datos{order:5;max-width:none;margin-top:26px}
+
+  .datos div,.colofon div{flex-direction:column;align-items:flex-start;gap:3px;padding:10px 0}
+  .datos dd,.colofon dd{text-align:left}
+  .colofon dt{flex:none}
+
+  .galeria figure{grid-column:span 2}
+  .galeria img{aspect-ratio:3/2}
+  .galeria figure:nth-child(3),.galeria figure:nth-child(4){grid-column:span 1}
+  .galeria figure:nth-child(3) img,.galeria figure:nth-child(4) img{aspect-ratio:3/4}
+
+  .espacio .env,.boletin .env,.invita .env,.fiesta .env{padding-top:54px;padding-bottom:54px}
+  .espacio h2,.boletin h2{max-width:none}
+  .espacio .intro,.boletin .texto,.credito{max-width:none}
+  .dos{margin-top:32px}
+  .dos video{max-width:100%}
+  .acciones .btn{flex:1 1 100%;text-align:center}
+  .alta{max-width:none}
+  .portada a.tapa{max-height:none}
+  .portada{max-width:320px}
+
+  .pie-sitio .env{grid-template-columns:1fr;gap:26px;padding-bottom:104px}
+  .flotante{left:20px;right:20px;justify-content:center}
+  .flotante span{display:inline}
 }
 </style>
 </head>
@@ -193,7 +297,11 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     whatsapp:   "34679785293",
     correo:     "contacto@arenaleslibreria.com",
     instagram:  "https://www.instagram.com/arenales.libreria/",
-    horario:    { dias: "De martes a sábado", manana: "10:00 – 14:00", tarde: "17:00 – 21:00" },
+    horario:    { dias: "De martes a sábado", manana: "10:00 – 14:00", tarde: "17:00 – 21:00",
+                  // los mismos horarios en números, para la barra de "abierto ahora".
+                  // getDay(): 0 domingo … 2 martes … 6 sábado
+                  dias_abre: [2, 3, 4, 5, 6],
+                  tramos: [[10, 14], [17, 21]] },
   };
 
   // ---------- cinta de anuncios ----------
@@ -204,6 +312,15 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     "3×2 en libros de segunda mano",
   ];
 
+
+  // ---------- preguntas sugeridas del librero ----------
+  // Cada una abre chat.html con la pregunta ya enviada.
+  const SUGERIDAS = [
+    "Una novela que enganche",
+    "Algo de una autora latinoamericana",
+    "Para un niño de 7 años",
+    "Un regalo",
+  ];
 
   // ---------- fiesta de aniversario ----------
   // Las imágenes son el carrusel que publicó la CM en Instagram. Se muestran
@@ -259,6 +376,60 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 
   const ALTA_BOLETIN = "https://4c26b6c3.sibforms.com/serve/MUIFAN_NrGp9TAZur-UMZvlCZm0ahmZJA0lI2rRy7vgQa7_XlBYjeJ8yV0W-JpYT-V-h_sq4oqQAF0I4hAGv051eDkSbSfairjDhyzjnZDyAWZGLi6spboJ6oJRmT8LX_J2MXAiLtUnb_0Ce2g7ouB-Qo41WavPxRLmZr3chSLV8JA2HMrGS4C0dwrTZU9bHxOSLluQB_zS1NxJRZw==";
 
+  const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves",
+                "viernes", "sábado"];
+
+  function hhmm(h) {
+    return String(h).padStart(2, "0") + ":00";
+  }
+
+  // Devuelve si la librería está abierta ahora mismo y una frase corta
+  // que lo explique. Todo sale de LIBRERIA.horario, así que cambiar el
+  // horario en las constantes cambia también esta barra.
+  function estadoAhora(ahora = new Date()) {
+    const h = LIBRERIA.horario;
+    const hoyAbre = h.dias_abre.includes(ahora.getDay());
+    const minutos = ahora.getHours() * 60 + ahora.getMinutes();
+
+    if (hoyAbre) {
+      for (const [desde, hasta] of h.tramos) {
+        if (minutos < desde * 60) {
+          return { abierto: false, texto: `Hoy abrimos a las ${hhmm(desde)}` };
+        }
+        if (minutos < hasta * 60) {
+          return { abierto: true, texto: `Abierto hasta las ${hhmm(hasta)}` };
+        }
+      }
+    }
+
+    // buscamos el próximo día que abrimos
+    for (let i = 1; i <= 7; i++) {
+      const d = (ahora.getDay() + i) % 7;
+      if (h.dias_abre.includes(d)) {
+        const cuando = i === 1 ? "mañana" : `el ${DIAS[d]}`;
+        return { abierto: false,
+                 texto: `Cerrado · abrimos ${cuando} a las ${hhmm(h.tramos[0][0])}` };
+      }
+    }
+    return { abierto: false, texto: "" };
+  }
+
+  function pintarBarra() {
+    const maps = document.getElementById('barra-maps');
+    maps.href = LIBRERIA.maps;
+    maps.textContent = LIBRERIA.direccion + ' · Chamberí ↗';
+
+    const estado = estadoAhora();
+    document.getElementById('barra-texto').textContent = estado.texto;
+    document.getElementById('barra-estado').classList.toggle('abierto', estado.abierto);
+  }
+
+  function pintarSugeridas() {
+    document.getElementById('sugeridas').innerHTML = SUGERIDAS
+      .map((t) => `<a href="chat.html?q=${encodeURIComponent(t)}">${t}</a>`)
+      .join('');
+  }
+
   function pintarFiesta() {
     if (!FIESTA.activa) return;
     // Se considera pasada a partir del día siguiente, para que el mismo día
@@ -290,6 +461,10 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
       () => tira.scrollBy({ left: paso(), behavior: 'smooth' }));
 
     document.getElementById('aniversario').hidden = false;
+
+    // Pasada la fecha, el chat pasa al frente y la fiesta baja a su sitio.
+    // El orden lo resuelve el CSS; acá solo se marca el estado.
+    document.body.classList.toggle('fiesta-pasada', pasado);
   }
 
   function hidratar() {
@@ -363,7 +538,13 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 
   document.addEventListener('DOMContentLoaded', () => {
     hidratar();
-    pintarFiesta();
+    pintarBarra();
+    pintarSugeridas();
+    if (FIESTA.activa) {
+      pintarFiesta();
+    } else {
+      document.body.classList.add('fiesta-pasada');
+    }
   });
 </script>
 
@@ -381,9 +562,17 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
   </div>
 </header>
 
+<div class="barra-sitio">
+  <div class="env">
+    <a id="barra-maps" href="#" target="_blank" rel="noopener"></a>
+    <span class="estado" id="barra-estado"><span class="punto"></span><span id="barra-texto"></span></span>
+  </div>
+</div>
+
+<main class="secciones">
 <section class="hero">
   <div class="env">
-    <div>
+    <div class="col">
       <p class="lab">Chamberí · Madrid</p>
       <h1>Una librería <span>de barrio</span>.</h1>
       <p class="bajada">Un sitio acogedor para elegir tu próxima lectura, quedarte un rato y disfrutar de actividades para toda la familia.</p>
@@ -486,6 +675,26 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
     </div>
   </div>
 </section>
+
+<section class="invita" id="librero">
+  <div class="env">
+    <div>
+      <p class="lab">Abierto también cuando cerramos</p>
+      <h2>Habla con el librero</h2>
+      <p class="texto">Recomienda solo libros que están hoy en la estantería. Si no lo tenemos,
+      te lo dice y te lo encargamos. A cualquier hora, también los domingos.</p>
+      <a class="btn btn-a" href="chat.html">Abrir el chat</a>
+    </div>
+    <div>
+      <div class="burbuja">
+        Buenas. Dime qué te apetece leer y te busco algo que tengamos aquí mismo.
+        <em>¿Es para ti o para regalar?</em>
+      </div>
+      <div class="sugeridas" id="sugeridas"></div>
+    </div>
+  </div>
+</section>
+</main>
 
 <footer class="pie-sitio">
   <div class="env">
