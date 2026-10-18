@@ -288,6 +288,39 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
   .flotante{left:20px;right:20px;justify-content:center}
   .flotante span{display:inline}
 }
+
+/* ---------- agenda y recomendaciones del boletín ---------- */
+.agenda{list-style:none;margin:26px 0 0;padding:0;max-width:48ch}
+.agenda li{display:grid;grid-template-columns:4.4rem 1fr;gap:16px;padding:13px 2px;
+  border-top:1px solid var(--linea);align-items:baseline}
+.agenda li:last-child{border-bottom:1px solid var(--linea)}
+.agenda time{font-weight:700;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--naranja)}
+.agenda b{font-weight:600;display:block}
+.agenda span{display:block;color:var(--fg-2);font-size:.87rem;margin-top:2px}
+/* la fiesta, en el amarillo del cartel, para que se ate con la sección de arriba */
+.agenda li.destacado{background:#fffae6;border-top-color:#e4dcc0;padding-left:12px;padding-right:12px;margin-left:-12px;margin-right:-12px}
+.agenda li.destacado,.agenda li.destacado b,.agenda li.destacado span,.agenda li.destacado time{color:#234a34}
+.boletin .env.recomienda{display:block;padding-top:0;padding-bottom:76px}
+.libros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;margin-top:22px}
+/* caja de proporción fija: las tapas recortadas del boletín no miden
+   todas igual y si no se igualan, los títulos quedan desalineados */
+.libro-ficha img{width:100%;max-width:142px;aspect-ratio:2/3;height:auto;object-fit:contain;
+  object-position:left top;background:var(--sup);border:1px solid var(--linea);display:block}
+.libro-ficha h3{font-size:1rem;margin:14px 0 0;letter-spacing:-.01em}
+.libro-ficha .autor{font-size:.83rem;color:var(--fg-2);margin:4px 0 0}
+.libro-ficha .nota{font-size:.88rem;color:var(--fg-2);margin:10px 0 0;line-height:1.55}
+@media(max-width:900px){
+  .libros{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  .libro-ficha img{max-width:120px}
+}
+@media(max-width:700px){
+  .libros{grid-template-columns:1fr;gap:22px}
+  .libro-ficha{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:start}
+  .libro-ficha img{max-width:none}
+  .libro-ficha h3{margin-top:0}
+  .agenda{max-width:none}
+  .agenda li{grid-template-columns:3.9rem 1fr;gap:12px}
+}
 </style>
 </head>
 <body>
@@ -317,6 +350,37 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
     "3×2 en libros de segunda mano",
   ];
 
+
+  // ---------- contenido del boletín del mes ----------
+  // Se carga a mano cada mes, copiando del boletín que sale por correo.
+  // La agenda se filtra sola: las fechas pasadas no se muestran, y cuando
+  // no queda ninguna la sección lo dice en vez de enseñar una lista vieja.
+  const BOLETIN_MES = {
+    titulo: "Octubre 2026",
+    intro: "Un correo al mes con tres libros que nos han gustado, la agenda de la librería y alguna efeméride. Esto es lo que trae el de este mes.",
+    eventos: [
+      { fecha: "2026-10-03", titulo: "Cuentacuentos", detalle: "Con Maite Zamora", hora: "12:00" },
+      { fecha: "2026-10-03", titulo: "Presentación: La máquina difamatoria", detalle: "De Maykel Rafael Paneque", hora: "19:00" },
+      { fecha: "2026-10-17", titulo: "Cuentacuentos", detalle: "Con Maite Zamora", hora: "12:00" },
+      { fecha: "2026-10-21", titulo: "Lecturas dramatizadas", detalle: "Pablo Messiez, puente entre Latinoamérica y España", hora: "19:00" },
+      { fecha: "2026-10-23", titulo: "Fiesta de aniversario", detalle: "Dj sets, artistas invitadas, vermú y mercadillo de libros", hora: "18:00 – 21:00", destacado: true },
+      { fecha: "2026-10-24", titulo: "Cineclub: The Innocents", detalle: "Con José Pirracas", hora: "18:00" },
+      { fecha: "2026-10-30", titulo: "Presentación: Celebración del deshielo", detalle: "De Alberto Escarpa", hora: "19:00" },
+      { fecha: "2026-10-31", titulo: "Cuentacuentos", detalle: "Con Maite Zamora", hora: "12:00" },
+      { fecha: "2026-10-31", titulo: "Presentación: Inteligencia laboral", detalle: "De Claudina Kutnowski", hora: "19:00" },
+    ],
+    libros: [
+      { img: "img/boletin/otra-vuelta-de-tuerca.jpg", titulo: "Otra vuelta de tuerca",
+        autor: "Henry James", editorial: "Siruela",
+        nota: "Un relato en el que nunca estamos del todo seguros de qué es real, y la duda acaba siendo la fuente del terror." },
+      { img: "img/boletin/cuentos-poe.jpg", titulo: "Cuentos 1",
+        autor: "Edgar Allan Poe", editorial: "Alianza",
+        nota: "Atmósferas oscuras y personajes atrapados en situaciones cada vez más inquietantes. Una apuesta segura." },
+      { img: "img/boletin/alguien-camina.jpg", titulo: "Alguien camina sobre tu tumba",
+        autor: "Mariana Enríquez", editorial: "Anagrama",
+        nota: "Cementerios de medio mundo convertidos en escenarios llenos de historias, supersticiones y fascinación." },
+    ],
+  };
 
   // ---------- preguntas sugeridas del librero ----------
   // Cada una abre chat.html con la pregunta ya enviada.
@@ -435,6 +499,46 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
       .join('');
   }
 
+  const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun",
+                        "jul", "ago", "sep", "oct", "nov", "dic"];
+
+  function pintarBoletinMes() {
+    const m = BOLETIN_MES;
+    document.getElementById('boletin-mes').textContent = m.titulo;
+    document.getElementById('boletin-intro').textContent = m.intro;
+
+    // Solo lo que todavía no pasó. Una agenda con fechas vencidas es peor
+    // que no tener agenda: dice que nadie mira la web.
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const proximos = m.eventos.filter((e) => new Date(e.fecha + "T23:59:59") >= hoy);
+
+    document.getElementById('boletin-agenda').innerHTML = proximos.map((e) => {
+      const d = new Date(e.fecha + "T12:00:00");
+      const cuando = d.getDate() + " " + MESES_CORTOS[d.getMonth()];
+      return `<li class="${e.destacado ? 'destacado' : ''}">
+                <time>${cuando}</time>
+                <div><b>${e.titulo}</b><span>${e.detalle} · ${e.hora}</span></div>
+              </li>`;
+    }).join('');
+
+    const vacia = document.getElementById('agenda-vacia');
+    vacia.hidden = proximos.length > 0;
+    if (!proximos.length) {
+      vacia.textContent = "Las fechas de este mes ya pasaron. El boletín del mes que viene está en camino — suscríbete y te llega por correo.";
+    }
+
+    document.getElementById('boletin-libros').innerHTML = m.libros.map((l) => `
+      <div class="libro-ficha">
+        <img src="${l.img}" alt="Portada de ${l.titulo}" loading="lazy">
+        <div>
+          <h3>${l.titulo}</h3>
+          <p class="autor">${l.autor} · ${l.editorial}</p>
+          <p class="nota">${l.nota}</p>
+        </div>
+      </div>`).join('');
+  }
+
   function pintarFiesta() {
     if (!FIESTA.activa) return;
     // Se considera pasada a partir del día siguiente, para que el mismo día
@@ -545,6 +649,7 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
     hidratar();
     pintarBarra();
     pintarSugeridas();
+    pintarBoletinMes();
     if (FIESTA.activa) {
       pintarFiesta();
     } else {
@@ -663,10 +768,11 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
 <section class="boletin" id="boletin">
   <div class="env">
     <div>
-      <p class="lab">Una vez al mes</p>
+      <p class="lab" id="boletin-mes"></p>
       <h2>El boletín</h2>
-      <p class="texto">Un correo al mes, y nada más. <b>Tres libros que nos han gustado</b>, el calendario de cuentacuentos, clubes y presentaciones, y alguna efeméride para el que le gusten estas cosas.</p>
-      <p class="texto">Es la forma más sencilla de enterarte de lo que pasa en la librería sin estar pendiente de las redes.</p>
+      <p class="texto" id="boletin-intro"></p>
+      <ul class="agenda" id="boletin-agenda"></ul>
+      <p class="mini" id="agenda-vacia" hidden></p>
       <form class="alta" id="form-alta">
         <input type="email" id="campo-alta" placeholder="Tu correo" aria-label="Tu correo">
         <button type="submit">Suscribirme</button>
@@ -678,6 +784,10 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
       <a class="tapa" href="newsletter.html"><img id="img-portada-boletin" src="" alt="" loading="lazy"></a>
       <div class="pie"><span id="titulo-boletin"></span><a href="newsletter.html">Leerlo entero →</a></div>
     </div>
+  </div>
+  <div class="env recomienda">
+    <p class="lab">Lo que recomendamos este mes</p>
+    <div class="libros" id="boletin-libros"></div>
   </div>
 </section>
 
