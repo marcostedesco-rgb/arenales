@@ -185,14 +185,14 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
    mientras falte para el evento y bajar sola al día siguiente, sin mover
    nada de sitio. El marcado queda en un orden estable y legible. */
 .secciones{display:flex;flex-direction:column}
-.secciones > .fiesta  {order:1}
-.secciones > .invita  {order:2}
+.secciones > .hero    {order:1}
+.secciones > .fiesta  {order:2}
 .secciones > .boletin {order:3}
-.secciones > .hero    {order:4}
+.secciones > .invita  {order:4}
 .secciones > .espacio {order:5}
 .secciones > .galeria {order:6}
-/* pasado el evento: el chat pasa al frente y la fiesta baja a su sitio */
-body.fiesta-pasada .secciones > .invita {order:1}
+/* pasado el evento, la fiesta deja de ser "lo que viene" y baja por
+   debajo del boletín, que sí se renueva todos los meses */
 body.fiesta-pasada .secciones > .boletin{order:2}
 body.fiesta-pasada .secciones > .fiesta {order:3}
 
