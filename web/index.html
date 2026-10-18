@@ -208,7 +208,12 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
 .barra-sitio .abierto .punto{background:#2e9e63}
 
 /* ---------- invitación al librero ---------- */
-.invita{background:var(--tinte);border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
+/* Los fondos alternan a lo largo de la página — papel, crema, verde claro,
+   papel, verde claro — para que cada sección se lea como un bloque aparte.
+   Si cambiás el orden de las secciones, revisá que no queden dos iguales
+   pegadas: el filete de un píxel no alcanza para separarlas. */
+.invita{background:var(--bg);border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
+.boletin{background:var(--tinte);border-bottom:1px solid var(--linea)}
 .invita .env{padding:72px 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:54px;align-items:center}
 .invita h2{font-size:clamp(1.9rem,4.4vw,3rem);max-width:11ch;margin:14px 0 0}
 .invita .texto{margin:22px 0 0;max-width:42ch;color:var(--fg-2)}
@@ -216,7 +221,7 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
 .burbuja em{display:block;font-style:normal;color:var(--fg-2);font-size:.9rem;margin-top:10px}
 .sugeridas{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .sugeridas a{border:1px solid var(--linea);padding:9px 15px;font-size:.84rem;color:var(--fg-2);
-  text-decoration:none;background:var(--bg)}
+  text-decoration:none;background:var(--sup)}
 .sugeridas a:hover{border-color:var(--marca);color:var(--marca)}
 .invita .btn{margin-top:18px;display:inline-block}
 
