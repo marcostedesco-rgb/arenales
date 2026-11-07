@@ -80,17 +80,44 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 .fa{height:clamp(240px,34vw,420px)} .fb{height:clamp(190px,26vw,330px)}
 .c5{grid-column:span 5} .c4{grid-column:span 4} .c3{grid-column:span 3} .c7{grid-column:span 7}
 
-.espacio{background:var(--tinte);border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
-.espacio .env{padding:76px 28px}
+/* el recorrido en vídeo pasa a ser el fondo de la sección: desenfocado y
+   oscurecido hace de atmósfera, y el botón lo abre nítido en un visor */
+.espacio{position:relative;overflow:hidden;background:#07150f;
+  --fg:#ffffff; --fg-2:#c6d8cd; --marca:#ffffff; --linea:rgba(255,255,255,.22);
+  color:var(--fg);border:0}
+.espacio::before{content:"";position:absolute;top:50%;left:50%;width:114%;height:114%;
+  transform:translate(-50%,-50%);background:url('img/espacio/recorrido-poster.jpg') center/cover no-repeat;
+  filter:blur(14px) saturate(.95) brightness(.78)}
+.espacio .fondo{position:absolute;top:50%;left:50%;width:114%;height:114%;max-width:none;
+  transform:translate(-50%,-50%);object-fit:cover;pointer-events:none;
+  filter:blur(14px) saturate(.95) brightness(.78)}
+.espacio .velo{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(2,22,14,.72),rgba(2,22,14,.46) 42%,rgba(2,22,14,.80))}
+.espacio .env{position:relative;padding:104px 28px}
 .espacio h2{font-size:clamp(1.9rem,4.4vw,3rem);max-width:12ch;margin:16px 0 0}
 .espacio .intro{max-width:48ch;color:var(--fg-2);margin:22px 0 0;font-size:1rem}
+.espacio .btn-a{background:#ffffff;color:#07150f}
+.espacio .btn-b{border-color:#ffffff;color:#ffffff}
+@media (prefers-reduced-motion:reduce){.espacio .fondo{display:none}}
+
+.ver-recorrido{display:inline-flex;align-items:center;gap:13px;margin-top:30px;
+  background:rgba(255,255,255,.06);color:#fff;border:1.5px solid rgba(255,255,255,.42);
+  padding:13px 22px;font-family:inherit;font-size:.68rem;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:600;cursor:pointer}
+.ver-recorrido:hover{border-color:#fff;background:rgba(255,255,255,.14)}
+.ver-recorrido b{font-size:.74rem;line-height:1}
+.ver-recorrido small{letter-spacing:.1em;opacity:.6;font-size:.62rem}
+
+.visor{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  background:rgba(4,16,11,.93);padding:24px}
+.visor video{aspect-ratio:9/16;height:min(84vh,760px);width:auto;max-width:92vw;background:#000}
+.visor .cerrar{position:absolute;top:14px;right:18px;background:none;border:0;color:#fff;
+  font-family:inherit;font-size:1.5rem;line-height:1;cursor:pointer;padding:10px}
 .credito{margin:30px 0 0;padding:16px 0;border-top:1px solid var(--linea);border-bottom:1px solid var(--linea);
   max-width:56ch;font-size:.94rem}
 .credito b{font-weight:600}
 .credito a{color:var(--naranja);font-weight:600;text-underline-offset:3px}
-.dos{display:grid;grid-template-columns:260px minmax(0,1fr);gap:52px;margin-top:44px;align-items:start}
-.dos video{width:100%;background:#000}
-.dos img{width:100%;margin-bottom:16px}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:52px;margin-top:40px;align-items:start}
 .colofon{margin:0}
 .colofon div{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid var(--linea)}
 .colofon div:first-child{border-top:1px solid var(--linea)}
@@ -277,8 +304,11 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
   .espacio .env,.boletin .env,.invita .env,.fiesta .env{padding-top:54px;padding-bottom:54px}
   .espacio h2,.boletin h2{max-width:none}
   .espacio .intro,.boletin .texto,.credito{max-width:none}
-  .dos{margin-top:32px}
-  .dos video{max-width:100%}
+  .dos{grid-template-columns:1fr;gap:34px;margin-top:30px}
+  .espacio .env{padding-top:62px;padding-bottom:62px}
+  /* en el móvil no se descargan 5 MB de vídeo para un fondo: queda el póster */
+  .espacio .fondo{display:none}
+  .ver-recorrido{width:100%;justify-content:center}
   .acciones .btn{flex:1 1 100%;text-align:center}
   .alta{max-width:none}
   .portada a.tapa{max-height:none}
@@ -618,6 +648,28 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
     document.getElementById('dato-bueno').textContent = ESPACIO.bueno;
     document.getElementById('link-playlist').href = ESPACIO.playlist;
 
+    // el vídeo nítido, a pantalla completa, sólo si alguien lo pide
+    document.getElementById('ver-recorrido').addEventListener('click', () => {
+      const visor = document.createElement('div');
+      visor.className = 'visor';
+      visor.innerHTML =
+        '<button class="cerrar" type="button" aria-label="Cerrar">&#10005;</button>' +
+        '<video controls autoplay playsinline poster="img/espacio/recorrido-poster.jpg" ' +
+        'src="img/espacio/espacio-recorrido.mp4"></video>';
+      const alTeclado = (e) => { if (e.key === 'Escape') cerrar(); };
+      function cerrar() {
+        visor.remove();
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', alTeclado);
+      }
+      visor.addEventListener('click', (e) => {
+        if (e.target === visor || e.target.classList.contains('cerrar')) cerrar();
+      });
+      document.addEventListener('keydown', alTeclado);
+      document.body.style.overflow = 'hidden';
+      document.body.appendChild(visor);
+    });
+
     const textoWhatsapp = encodeURIComponent(
       'Hola, quería consultar por el espacio de la librería para un evento.'
     );
@@ -738,6 +790,11 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
 </section>
 
 <section class="espacio" id="espacio">
+  <video class="fondo" autoplay muted loop playsinline preload="metadata"
+         poster="img/espacio/recorrido-poster.jpg" aria-hidden="true" tabindex="-1">
+    <source src="img/espacio/espacio-recorrido.mp4" type="video/mp4">
+  </video>
+  <div class="velo" aria-hidden="true"></div>
   <div class="env">
     <p class="lab">La sala del fondo</p>
     <h2>El espacio</h2>
@@ -747,10 +804,9 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
 
     <div class="dos">
       <div>
-        <img id="foto-sala" src="img/espacio/sala.jpg" alt="La sala del fondo, vista general" loading="lazy" onerror="this.remove()">
-        <video controls playsinline preload="metadata" poster="img/espacio/recorrido-poster.jpg">
-          <source src="img/espacio/espacio-recorrido.mp4" type="video/mp4">
-        </video>
+        <button type="button" class="ver-recorrido" id="ver-recorrido">
+          <b>&#9654;</b><span>Ver el recorrido</span><small>46 s</small>
+        </button>
       </div>
       <div>
         <dl class="colofon">
