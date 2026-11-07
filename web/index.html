@@ -73,7 +73,7 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
 .hero figure{margin:0}
 .hero figure img{width:100%;aspect-ratio:2/3;object-fit:cover}
 
-.galeria{display:grid;grid-template-columns:repeat(12,1fr);gap:0}
+.galeria{display:grid;grid-template-columns:repeat(12,1fr);gap:0;border-top:1px solid var(--linea)}
 .galeria figure{margin:0;overflow:hidden;background:#0e1713}
 .galeria img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.3,1)}
 .galeria figure:hover img{transform:scale(1.045)}
@@ -213,15 +213,15 @@ h1,h2,h3{margin:0;font-weight:700;line-height:1.06;letter-spacing:-.022em;color:
    nada de sitio. El marcado queda en un orden estable y legible. */
 .secciones{display:flex;flex-direction:column}
 .secciones > .hero    {order:1}
-.secciones > .fiesta  {order:2}
-.secciones > .boletin {order:3}
-.secciones > .invita  {order:4}
-.secciones > .espacio {order:5}
-.secciones > .galeria {order:6}
+.secciones > .galeria {order:2}
+.secciones > .fiesta  {order:3}
+.secciones > .boletin {order:4}
+.secciones > .invita  {order:5}
+.secciones > .espacio {order:6}
 /* pasado el evento, la fiesta deja de ser "lo que viene" y baja por
    debajo del boletín, que sí se renueva todos los meses */
-body.fiesta-pasada .secciones > .boletin{order:2}
-body.fiesta-pasada .secciones > .fiesta {order:3}
+body.fiesta-pasada .secciones > .boletin{order:3}
+body.fiesta-pasada .secciones > .fiesta {order:4}
 
 /* ---------- barra de dirección y horario ---------- */
 .barra-sitio{background:var(--tinte);border-bottom:1px solid var(--linea)}
@@ -235,8 +235,8 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
 .barra-sitio .abierto .punto{background:#2e9e63}
 
 /* ---------- invitación al librero ---------- */
-/* Los fondos alternan a lo largo de la página — papel, crema, verde claro,
-   papel, verde claro — para que cada sección se lea como un bloque aparte.
+/* Los fondos alternan a lo largo de la página — papel, fotos, crema, verde
+   claro, papel, vídeo oscuro — para que cada sección se lea como un bloque.
    Si cambiás el orden de las secciones, revisá que no queden dos iguales
    pegadas: el filete de un píxel no alcanza para separarlas. */
 .invita{background:var(--bg);border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
@@ -721,9 +721,9 @@ body.fiesta-pasada .secciones > .fiesta {order:3}
     <a class="marca" href="index.html">Librería Arenales</a>
     <nav>
       <a href="index.html" class="on">La librería</a>
-      <a href="#espacio">El espacio</a>
       <a href="#boletin">El boletín</a>
       <a href="chat.html">El librero</a>
+      <a href="#espacio">El espacio</a>
     </nav>
   </div>
 </header>
